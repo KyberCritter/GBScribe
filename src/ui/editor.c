@@ -2,14 +2,16 @@
 #include "editor.h"
 #include "screen.h"
 #include "keyboard.h"
+#include "app.h"
 #include "core/charset.h"
 #include "core/document.h"
 #include "core/layout.h"
+#include "storage/storage.h"
+#include "storage/save.h"
 
 EWRAM_BSS static Document doc;
 EWRAM_BSS static Layout lo;
 
-static WrapMode wrap_mode = WRAP_POST_WORD;   // settings UI arrives in M3
 static int top_line;                          // first visible layout line
 static int cur_layer, cur_key;
 
@@ -18,7 +20,8 @@ static int caret_cx, caret_cy;
 
 static void reflow(void)
 {
-    layout_reflow(&lo, doc.text, doc.len, PAGE_W, wrap_mode);
+    WrapMode m = g_save.wrap_mode ? WRAP_MID_WORD : WRAP_POST_WORD;
+    layout_reflow(&lo, doc.text, doc.len, PAGE_W, m);
 }
 
 static void scroll_to_caret(void)
@@ -145,13 +148,17 @@ static u16 repeat_hits(void)
 static void draw_chrome(void)
 {
     u16 *cm = chrome_map();
+    u16 *tm = text_map();
     for (int y = 0; y < PAGE_ROWS; y++)
         for (int x = 0; x < SCREEN_TW; x++) {
             bool page = (x >= PAGE_X0 && x < PAGE_X0 + PAGE_W);
             map_put(cm, x, y, page ? SOLID(1) : SOLID(3), PB_SOLID);
+            map_put(tm, x, y, CH_BLANK, PB_INK);   // clear stale scene glyphs
         }
-    for (int x = 0; x < SCREEN_TW; x++)
+    for (int x = 0; x < SCREEN_TW; x++) {
         map_put(cm, x, PAGE_ROWS, SOLID(5), PB_SOLID);
+        map_put(tm, x, PAGE_ROWS, CH_BLANK, PB_INK);
+    }
 }
 
 void editor_init(void)
@@ -160,10 +167,31 @@ void editor_init(void)
     top_line = 0;
     cur_layer = 0;
     cur_key = 0;
+}
+
+void editor_enter(void)
+{
     draw_chrome();
     reflow();
+    scroll_to_caret();
     render_page();
     kb_render(cur_layer, cur_key);
+}
+
+void editor_new(void)
+{
+    doc_init(&doc);
+    top_line = 0;
+}
+
+void editor_reloaded(void)
+{
+    top_line = 0;
+}
+
+Document *editor_doc(void)
+{
+    return &doc;
 }
 
 void editor_frame(int frame)
@@ -202,6 +230,10 @@ void editor_frame(int frame)
     }
     if (key_hit(KEY_R))
         type_code(' ');
+    if (key_hit(KEY_START)) {
+        app_goto(ST_MENU);
+        return;
+    }
 
     update_caret_sprite(frame);
 }

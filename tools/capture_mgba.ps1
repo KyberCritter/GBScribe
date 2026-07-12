@@ -24,6 +24,8 @@ Add-Type -AssemblyName System.Drawing
 [Win32Cap]::SetProcessDPIAware() | Out-Null
 
 $mgba = "C:\Program Files\mGBA\mGBA.exe"
+# stray instances hold a lock on the ROM and break the next build
+try { Get-Process mGBA -ErrorAction Stop | Stop-Process -Force -Confirm:$false } catch {}
 $p = Start-Process $mgba -ArgumentList "-3","`"$Rom`"" -PassThru
 try {
     Start-Sleep -Seconds $DelaySec
@@ -77,4 +79,6 @@ try {
     Write-Output "CAPTURED $Out"
 } finally {
     try { Stop-Process -Id $p.Id -Force -Confirm:$false -ErrorAction Stop } catch {}
+    Start-Sleep -Milliseconds 300
+    try { Get-Process mGBA -ErrorAction Stop | Stop-Process -Force -Confirm:$false } catch {}
 }
