@@ -35,16 +35,26 @@ try {
 
     if ($SendKeys -ne "") {
         # tokens separated by spaces: letter/digit, left/right/up/down/enter/bksp, pause
+        # chords: "a+left" presses A then LEFT together (mGBA L shoulder = A key)
         $vkmap = @{ 'left'=0x25; 'up'=0x26; 'right'=0x27; 'down'=0x28; 'enter'=0x0D; 'bksp'=0x08 }
+        function Get-VK([string]$name) {
+            if ($vkmap.ContainsKey($name)) { return [byte]$vkmap[$name] }
+            return [byte][char]$name.ToUpper()[0]
+        }
         foreach ($tok in $SendKeys.ToLower() -split ' ') {
             if ($tok -eq '') { continue }
             if ($tok -eq 'pause') { Start-Sleep -Milliseconds 600; continue }
-            if ($vkmap.ContainsKey($tok)) { $vk = [byte]$vkmap[$tok] }
-            else { $vk = [byte][char]$tok.ToUpper()[0] }
-            [Win32Cap]::keybd_event($vk, 0, 0, [UIntPtr]::Zero)
-            Start-Sleep -Milliseconds 130
-            [Win32Cap]::keybd_event($vk, 0, 2, [UIntPtr]::Zero)  # KEYEVENTF_KEYUP
-            Start-Sleep -Milliseconds 110
+            $holdMs = 130
+            if ($tok -match '^hold(\d+):(.+)$') {   # holdN:key = hold for N tenths of a second
+                $holdMs = [int]$Matches[1] * 100
+                $tok = $Matches[2]
+            }
+            $parts = @($tok -split '\+')
+            foreach ($p in $parts) { [Win32Cap]::keybd_event((Get-VK $p), 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 40 }
+            Start-Sleep -Milliseconds $holdMs
+            [array]::Reverse($parts)
+            foreach ($p in $parts) { [Win32Cap]::keybd_event((Get-VK $p), 0, 2, [UIntPtr]::Zero); Start-Sleep -Milliseconds 40 }
+            Start-Sleep -Milliseconds 90
         }
         Start-Sleep -Milliseconds 500
     }
