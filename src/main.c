@@ -4,7 +4,7 @@
 #include <tonc.h>
 #include "gfx/font.h"
 #include "ui/screen.h"
-#include "ui/editor.h"
+#include "app.h"
 
 static void init_video(void)
 {
@@ -38,14 +38,14 @@ int main(void)
     irq_enable(II_VBLANK);
 
     init_video();
-    editor_init();
+    app_init();
 
     int frame = 0;
     while (1) {
         VBlankIntrWait();
         key_poll();
         frame++;
-        editor_frame(frame);
+        app_frame(frame);
     }
     return 0;
 }
