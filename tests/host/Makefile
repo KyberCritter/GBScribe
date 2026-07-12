@@ -13,10 +13,14 @@ $(BIN)/test_layout: test_layout.c ../../src/core/layout.c ../../src/core/documen
 	@mkdir -p $(BIN)
 	$(CC) $(CFLAGS) $^ -o $@
 
-# test_printer arrives with M4; keep the target harmless until then
-$(BIN)/test_printer:
+$(BIN)/test_printer: test_printer.c ../../src/printer/gbp_packet.c ../../src/printer/gbp_print.c \
+                     ../../src/core/layout.c ../../src/core/document.c ../../src/gfx/font2bpp.c \
+                     decoder/gpbdecoder
 	@mkdir -p $(BIN)
-	@printf '#!/bin/sh\nexit 0\n' > $@ && chmod +x $@
+	$(CC) $(CFLAGS) $(filter %.c,$^) -o $@
+
+decoder/gpbdecoder:
+	$(MAKE) -C decoder
 
 clean:
 	rm -rf $(BIN)
