@@ -7,12 +7,13 @@
 
 static const char *items[] = {
     "Resume",
+    "Print document",
     "Save document",
     "Load document",
     "New document",
     "Settings",
 };
-#define N_ITEMS 5
+#define N_ITEMS 6
 
 static int sel;
 
@@ -44,10 +45,11 @@ void menu_frame(int frame)
     if (key_hit(KEY_A)) {
         switch (sel) {
         case 0: app_goto(ST_EDITOR); break;
-        case 1: app_goto(ST_SLOTS_SAVE); break;
-        case 2: app_goto(ST_SLOTS_LOAD); break;
-        case 3: editor_new(); app_goto(ST_EDITOR); break;
-        case 4: app_goto(ST_SETTINGS); break;
+        case 1: app_goto(ST_PRINT); break;
+        case 2: app_goto(ST_SLOTS_SAVE); break;
+        case 3: app_goto(ST_SLOTS_LOAD); break;
+        case 4: editor_new(); app_goto(ST_EDITOR); break;
+        case 5: app_goto(ST_SETTINGS); break;
         }
     }
 }
