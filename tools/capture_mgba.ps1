@@ -3,13 +3,15 @@
 param(
     [Parameter(Mandatory=$true)][string]$Rom,
     [Parameter(Mandatory=$true)][string]$Out,
-    [int]$DelaySec = 5
+    [int]$DelaySec = 5,
+    [string]$SendKeys = ""   # SendKeys sequence sent after boot (mGBA binds: X=A, Z=B, arrows, Enter=Start, Backspace=Select)
 )
 
 Add-Type @'
 using System;
 using System.Runtime.InteropServices;
 public class Win32Cap {
+    [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
     [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool GetClientRect(IntPtr hWnd, out RECT r);
@@ -30,6 +32,22 @@ try {
     if ($hwnd -eq [IntPtr]::Zero) { throw "mGBA window not found" }
     [Win32Cap]::SetForegroundWindow($hwnd) | Out-Null
     Start-Sleep -Milliseconds 500
+
+    if ($SendKeys -ne "") {
+        # tokens separated by spaces: letter/digit, left/right/up/down/enter/bksp, pause
+        $vkmap = @{ 'left'=0x25; 'up'=0x26; 'right'=0x27; 'down'=0x28; 'enter'=0x0D; 'bksp'=0x08 }
+        foreach ($tok in $SendKeys.ToLower() -split ' ') {
+            if ($tok -eq '') { continue }
+            if ($tok -eq 'pause') { Start-Sleep -Milliseconds 600; continue }
+            if ($vkmap.ContainsKey($tok)) { $vk = [byte]$vkmap[$tok] }
+            else { $vk = [byte][char]$tok.ToUpper()[0] }
+            [Win32Cap]::keybd_event($vk, 0, 0, [UIntPtr]::Zero)
+            Start-Sleep -Milliseconds 130
+            [Win32Cap]::keybd_event($vk, 0, 2, [UIntPtr]::Zero)  # KEYEVENTF_KEYUP
+            Start-Sleep -Milliseconds 110
+        }
+        Start-Sleep -Milliseconds 500
+    }
 
     $rect = New-Object Win32Cap+RECT
     [Win32Cap]::GetClientRect($hwnd, [ref]$rect) | Out-Null
