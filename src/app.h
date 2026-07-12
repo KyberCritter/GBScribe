@@ -9,6 +9,7 @@ typedef enum {
     ST_SLOTS_SAVE,
     ST_SLOTS_LOAD,
     ST_SETTINGS,
+    ST_PRINT,
 } AppState;
 
 void app_init(void);
@@ -20,5 +21,6 @@ void title_enter(void);    void title_frame(int frame);
 void menu_enter(void);     void menu_frame(int frame);
 void slots_enter(int save_mode); void slots_frame(int frame);
 void settings_enter(void); void settings_frame(int frame);
+void print_enter(void);    void print_frame(int frame);
 
 #endif

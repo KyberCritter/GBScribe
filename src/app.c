@@ -2,6 +2,7 @@
 #include "app.h"
 #include "ui/editor.h"
 #include "storage/save.h"
+#include "printer/gbp_link.h"
 
 static AppState state;
 
@@ -15,12 +16,14 @@ void app_goto(AppState s)
     case ST_SLOTS_SAVE: slots_enter(1);    break;
     case ST_SLOTS_LOAD: slots_enter(0);    break;
     case ST_SETTINGS:   settings_enter();  break;
+    case ST_PRINT:      print_enter();     break;
     }
 }
 
 void app_init(void)
 {
     save_init();
+    gbp_link_init();
     editor_init();
     app_goto(ST_TITLE);
 }
@@ -34,5 +37,6 @@ void app_frame(int frame)
     case ST_SLOTS_SAVE:
     case ST_SLOTS_LOAD: slots_frame(frame);    break;
     case ST_SETTINGS:   settings_frame(frame); break;
+    case ST_PRINT:      print_frame(frame);    break;
     }
 }

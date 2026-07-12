@@ -3,6 +3,20 @@
 #include "ui/ui.h"
 #include "ui/screen.h"
 #include "core/charset.h"
+#include "printer/gbp_link.h"
+
+static bool printer_ok;
+
+static void draw_printer_status(void)
+{
+    if (printer_ok) {
+        map_put(text_map(), 2, 18, CH_CIRC_FILL, PB_UI);
+        ui_text(4, 18, "printer: OK ", PB_UI);
+    } else {
+        map_put(text_map(), 2, 18, CH_CIRC_HOLLOW, PB_UI);
+        ui_text(4, 18, "printer: ---", PB_UI);
+    }
+}
 
 void title_enter(void)
 {
@@ -16,8 +30,8 @@ void title_enter(void)
     ui_text(7, 12, "write \x0C draw \x0C print", PB_UI);
     ui_text(9, 15, "PRESS START", PB_UI);
 
-    // printer status placeholder — the real INQUIRY probe arrives with M5
-    ui_text(2, 18, "\x08 printer: ---", PB_UI);
+    printer_ok = false;
+    draw_printer_status();
 }
 
 void title_frame(int frame)
@@ -27,6 +41,15 @@ void title_frame(int frame)
         ui_text(9, 15, "PRESS START", PB_UI);
     else if ((frame & 63) == 40)
         ui_text(9, 15, "           ", PB_UI);
+
+    // probe for the printer once a second (bare INQUIRY, ~10ms, no paper)
+    if ((frame % 60) == 30) {
+        bool ok = gbp_link_detect(NULL);
+        if (ok != printer_ok) {
+            printer_ok = ok;
+            draw_printer_status();
+        }
+    }
 
     if (key_hit(KEY_START | KEY_A))
         app_goto(ST_EDITOR);
