@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="client-nojs">
+<head>
+<meta charset="UTF-8" />
+<title>Gameboy Printer - GbdevWiki</title>
+<meta name="generator" content="MediaWiki 1.25.1" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="search" type="application/opensearchdescription+xml" href="/wiki/opensearch_desc.php" title="GbdevWiki (en)" />
+<link rel="EditURI" type="application/rsd+xml" href="https://gbdev.gg8.se/wiki/api.php?action=rsd" />
+<link rel="alternate" hreflang="x-default" href="/wiki/articles/Gameboy_Printer" />
+<link rel="alternate" type="application/atom+xml" title="GbdevWiki Atom feed" href="/wiki/index.php?title=Special:RecentChanges&amp;feed=atom" />
+<link rel="canonical" href="https://gbdev.gg8.se/wiki/articles/Gameboy_Printer" />
+<link rel="stylesheet" href="https://gbdev.gg8.se/wiki/load.php?debug=false&amp;lang=en&amp;modules=mediawiki.legacy.commonPrint%2Cshared%7Cmediawiki.sectionAnchor%7Cmediawiki.skinning.content.externallinks%7Cmediawiki.skinning.interface%7Cmediawiki.ui.button%7Cskins.monobook.styles&amp;only=styles&amp;skin=monobook&amp;*" />
+<!--[if IE 6]><link rel="stylesheet" href="/wiki/skins/MonoBook/IE60Fixes.css?303" media="screen" /><![endif]-->
+<!--[if IE 7]><link rel="stylesheet" href="/wiki/skins/MonoBook/IE70Fixes.css?303" media="screen" /><![endif]--><meta name="ResourceLoaderDynamicStyles" content="" />
+<link rel="stylesheet" href="https://gbdev.gg8.se/wiki/load.php?debug=false&amp;lang=en&amp;modules=site&amp;only=styles&amp;skin=monobook&amp;*" />
+<style>a:lang(ar),a:lang(kk-arab),a:lang(mzn),a:lang(ps),a:lang(ur){text-decoration:none}
+/* cache key: gbdevwiki-gbdevwiki_:resourceloader:filter:minify-css:7:6e7fe7968357bf072d7ae91837483523 */</style>
+<script src="https://gbdev.gg8.se/wiki/load.php?debug=false&amp;lang=en&amp;modules=startup&amp;only=scripts&amp;skin=monobook&amp;*"></script>
+<script>if(window.mw){
+mw.config.set({"wgCanonicalNamespace":"","wgCanonicalSpecialPageName":false,"wgNamespaceNumber":0,"wgPageName":"Gameboy_Printer","wgTitle":"Gameboy Printer","wgCurRevisionId":966,"wgRevisionId":966,"wgArticleId":139,"wgIsArticle":true,"wgIsRedirect":false,"wgAction":"view","wgUserName":null,"wgUserGroups":["*"],"wgCategories":["Pandocs Article"],"wgBreakFrames":false,"wgPageContentLanguage":"en","wgPageContentModel":"wikitext","wgSeparatorTransformTable":["",""],"wgDigitTransformTable":["",""],"wgDefaultDateFormat":"dmy","wgMonthNames":["","January","February","March","April","May","June","July","August","September","October","November","December"],"wgMonthNamesShort":["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"wgRelevantPageName":"Gameboy_Printer","wgRelevantArticleId":139,"wgIsProbablyEditable":false,"wgRestrictionEdit":[],"wgRestrictionMove":[]});
+}</script><script>if(window.mw){
+mw.loader.implement("user.options",function($,jQuery){mw.user.options.set({"variant":"en"});});mw.loader.implement("user.tokens",function($,jQuery){mw.user.tokens.set({"editToken":"+\\","patrolToken":"+\\","watchToken":"+\\"});});
+/* cache key: gbdevwiki-gbdevwiki_:resourceloader:filter:minify-js:7:a5c52c063dc436c1ca7c9f456936a5e9 */
+}</script>
+<script>if(window.mw){
+mw.loader.load(["mediawiki.page.startup","mediawiki.legacy.wikibits","mediawiki.legacy.ajax"]);
+}</script>
+</head>
+<body class="mediawiki ltr sitedir-ltr ns-0 ns-subject page-Gameboy_Printer skin-monobook action-view">
+<div id="globalWrapper">
+		<div id="column-content">
+			<div id="content" class="mw-body" role="main">
+				<a id="top"></a>
+				
+				<div class="mw-indicators">
+</div>
+				<h1 id="firstHeading" class="firstHeading" lang="en">Gameboy Printer</h1>
+
+				<div id="bodyContent" class="mw-body-content">
+					<div id="siteSub">From GbdevWiki</div>
+					<div id="contentSub"></div>
+										<div id="jump-to-nav" class="mw-jump">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>
+
+					<!-- start content -->
+					<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><div class="wikitable" style="border: 1px solid #ccc; margin:0.5em auto; background-color: #fcc; font-size:95%; text-align: center;">
+<p><b>The copy of Pan Docs hosted on this wiki is considered deprecated.</b>
+</p><p>Pan Docs is now officially hosted on gbdev.io as a living document. Please go to <a rel="nofollow" class="external free" href="https://gbdev.io/pandocs/">https://gbdev.io/pandocs/</a> to read Pan Docs or to <a rel="nofollow" class="external free" href="https://github.com/gbdev/pandocs">https://github.com/gbdev/pandocs</a> to contribute.
+</p><p>Click here to go to this section of Pan Docs in the new location: <a rel="nofollow" class="external free" href="https://gbdev.io/pandocs/#game-boy-printer">https://gbdev.io/pandocs/#game-boy-printer</a>
+</p>
+</div>
+<p>The Gameboy Printer is a portable thermal printer made by <a rel="nofollow" class="external text" href="http://www.sii.co.jp">SII</a> for Nintendo, which a few games used to print out bonus artwork, certificates, pictures (<a href="/wiki/articles/Gameboy_Camera" title="Gameboy Camera">Gameboy Camera</a>)...
+</p><p>It can use standard 38mm paper and interfaces with the Gameboy through the Link port.
+</p><p>It is operated by an embedded 8bit microcontroller which has its own 8KiB of RAM to buffer incoming graphics data. Those 8KiB allow a maximum bitmap area of 160*200 (8192/160*4) pixels between prints.
+</p>
+<div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#Communication"><span class="tocnumber">1</span> <span class="toctext">Communication</span></a></li>
+<li class="toclevel-1 tocsection-2"><a href="#Detection"><span class="tocnumber">2</span> <span class="toctext">Detection</span></a></li>
+<li class="toclevel-1 tocsection-3"><a href="#Command_1:_Initialize"><span class="tocnumber">3</span> <span class="toctext">Command 1: Initialize</span></a></li>
+<li class="toclevel-1 tocsection-4"><a href="#Command_2:_Start_printing"><span class="tocnumber">4</span> <span class="toctext">Command 2: Start printing</span></a></li>
+<li class="toclevel-1 tocsection-5"><a href="#Command_4:_Fill_buffer"><span class="tocnumber">5</span> <span class="toctext">Command 4: Fill buffer</span></a></li>
+<li class="toclevel-1 tocsection-6"><a href="#Command_.24F:_Read_status"><span class="tocnumber">6</span> <span class="toctext">Command $F: Read status</span></a></li>
+<li class="toclevel-1 tocsection-7"><a href="#Status_byte"><span class="tocnumber">7</span> <span class="toctext">Status byte</span></a></li>
+<li class="toclevel-1 tocsection-8"><a href="#Example"><span class="tocnumber">8</span> <span class="toctext">Example</span></a></li>
+<li class="toclevel-1 tocsection-9"><a href="#Tips"><span class="tocnumber">9</span> <span class="toctext">Tips</span></a></li>
+<li class="toclevel-1 tocsection-10"><a href="#Compression"><span class="tocnumber">10</span> <span class="toctext">Compression</span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="Communication">Communication</span></h2>
+<p>The Gameboy Printer doesn't use the full-duplex capability of the Link port. It accepts variable length data packets and then answers back its status after two $00 writes.
+</p><p>The packets all follow this format:
+</p>
+<table border="1" cellpadding="2" cellspacing="0">
+<tr>
+<td><b>Description</b>
+</td>
+<td colspan="2">Magic bytes
+</td>
+<td>Command
+</td>
+<td>Compression flag
+</td>
+<td colspan="2">Length of data
+</td>
+<td>Command-specific data
+</td>
+<td colspan="2">Checksum
+</td>
+<td>Alive indicator
+</td>
+<td>Status
+</td></tr>
+<tr>
+<td><b>Size</b>
+</td>
+<td colspan="2">2 bytes
+</td>
+<td>1 byte
+</td>
+<td>1 byte
+</td>
+<td colspan="2">2 bytes
+</td>
+<td>Variable
+</td>
+<td colspan="2">2 bytes
+</td>
+<td>1 byte
+</td>
+<td>1 byte
+</td></tr>
+<tr>
+<td><b>GB to Printer</b>
+</td>
+<td>$88
+</td>
+<td>$33
+</td>
+<td>See below
+</td>
+<td>0/1
+</td>
+<td>LSB
+</td>
+<td>MSB
+</td>
+<td>See below
+</td>
+<td>LSB
+</td>
+<td>MSB
+</td>
+<td>$00
+</td>
+<td>$00
+</td></tr>
+<tr>
+<td><b>Printer to GB</b>
+</td>
+<td>0x00
+</td>
+<td>0x00
+</td>
+<td>0x00
+</td>
+<td>0x00
+</td>
+<td>0x00
+</td>
+<td>0x00
+</td>
+<td>0x00
+</td>
+<td>0x00
+</td>
+<td>0x00
+</td>
+<td>0x81
+</td>
+<td>See below
+</td></tr></table>
+<p>The checksum is simply a sum of every byte sent except the magic bytes and obviously, the checksum itself.
+</p>
+<h2><span class="mw-headline" id="Detection">Detection</span></h2>
+<p>Send these 9 bytes: $88,$33,$0F,$00,$00,$00,$0F,$00 (Command $0F, no data).
+</p><p>Send $00 and read input, if the byte is $81, then the printer is there.
+Send a last $00, just for good measure. Input can be ignored.
+</p><p><br />
+</p>
+<h2><span class="mw-headline" id="Command_1:_Initialize">Command 1: Initialize</span></h2>
+<p>This clears the printer's buffer RAM.
+</p><p>No data required. The normal status replied should be $00.
+</p><p><br />
+</p>
+<h2><span class="mw-headline" id="Command_2:_Start_printing">Command 2: Start printing</span></h2>
+<p>Data length: 4 bytes
+</p>
+<ul><li>Byte 1: Number of sheets to print (0-255). 0 means line feed only.</li>
+<li>Byte 2: Margins, high nibble is the feed before printing, low nibble is after printing. GB Camera sends $13 by default.</li>
+<li>Byte 3: Palette, typically $E4 (0b11100100)</li>
+<li>Byte 4: 7 bits exposure value, sets the burning time for the print head. GB Camera sends $40 by default. Official manual mentions -25% darkness for $00 and +25% for $7F.</li></ul>
+<p><br />
+</p>
+<h2><span class="mw-headline" id="Command_4:_Fill_buffer">Command 4: Fill buffer</span></h2>
+<p>Data length: max. $280 (160*16 pixels in 2BPP)
+To transfer more than $280 bytes, multiple "command 4 packets" have to be sent.
+</p><p>The graphics are organized in the normal tile format (16 bytes per tile),
+and the tiles are sent in the same order they occur on your tilemap (do keep in mind though that the printer does *not* have 32x32 tiles space for a map, but only 20x18).
+</p><p>An empty data packet must be sent before sending command 2 to print the data, otherwise the print command will be ignored.
+</p>
+<h2><span class="mw-headline" id="Command_.24F:_Read_status">Command $F: Read status</span></h2>
+<p>No data required, this is a "nop" command used only to read the Status byte.
+</p><p><br />
+</p>
+<h2><span class="mw-headline" id="Status_byte">Status byte</span></h2>
+<p>A nonzero value for the higher nibble indicates something went wrong.
+</p>
+<table border="1" cellpadding="2" cellspacing="0">
+<tr>
+<td>Bit 7
+</td>
+<td>Low Battery
+</td>
+<td>Set when the voltage is below threshold
+</td></tr>
+<tr>
+<td>Bit 6
+</td>
+<td>Other error
+</td>
+<td>
+</td></tr>
+<tr>
+<td>Bit 5
+</td>
+<td>Paper jam
+</td>
+<td>Set when the encoder gives no pulses when the motor is powered
+</td></tr>
+<tr>
+<td>Bit 4
+</td>
+<td>Packet error
+</td>
+<td>
+</td></tr>
+<tr>
+<td>Bit 3
+</td>
+<td>Unprocessed data
+</td>
+<td>Set when there's unprocessed data in memory - AKA ready to print
+</td></tr>
+<tr>
+<td>Bit 2
+</td>
+<td>Image data full
+</td>
+<td>
+</td></tr>
+<tr>
+<td>Bit 1
+</td>
+<td>Currently printing
+</td>
+<td>Set as long as the printer's burnin' paper
+</td></tr>
+<tr>
+<td>Bit 0
+</td>
+<td>Checksum error
+</td>
+<td>Set when the calculated checksum doesn't match the received one
+</td></tr></table>
+<p><br />
+</p>
+<h2><span class="mw-headline" id="Example">Example</span></h2>
+<ul><li>Send command 1, the answer should be $81, $00</li>
+<li>Send command 4 with $280 of your graphics, the answer should still be $81, $00</li>
+<li>Ask for status with command $F, the answer should now be $81, $08 (ready to print)</li>
+<li>Send an empty command 4 packet, the answer should still be $81, $08</li>
+<li>Send command 2 with your arguments (margins, palette, exposure), the answer should still be $81, $08</li>
+<li>Ask for status with command $F until it changes to $81, $06 (printing&#160;!)</li>
+<li>Ask for status with command $F until it changes to $81, $04 (printing done)</li>
+<li>Optionally send 16 zero bytes to clear the printer's receive buffer (GB Camera does it)</li></ul>
+<h2><span class="mw-headline" id="Tips">Tips</span></h2>
+<ul><li><b>The printer has a timeout of 100ms for packets. If no packet is received within that time, the printer will return to an initialized state (meaning the link and graphics buffers are reset).</b></li>
+<li><b>There appears to be an undocumented timeout for the bytes of a packet. It's best to send a packet completely or with very little delay between the individual bytes, otherwise the packet may not be accepted.</b></li>
+<li>To print things larger than 20x18 (like GB Camera images with big borders), multiple data packets with a following print command need to be sent. The print command should be set to no linefeed (neither before nor after) to allow for continuous printing.</li></ul>
+<p><br />
+</p>
+<h2><span class="mw-headline" id="Compression">Compression</span></h2>
+<p>Some sort of RLE&#160;? The GB Camera doesn't use it.
+</p><p>(<a rel="nofollow" class="external text" href="http://furrtek.free.fr/?a=gbprinter&amp;i=2">Details and pictures</a>, need to be copied here)
+</p>
+<!-- 
+NewPP limit report
+CPU time usage: 0.013 seconds
+Real time usage: 0.015 seconds
+Preprocessor visited node count: 48/1000000
+Preprocessor generated node count: 88/1000000
+Post‐expand include size: 640/2097152 bytes
+Template argument size: 32/2097152 bytes
+Highest expansion depth: 3/40
+Expensive parser function count: 0/100
+-->
+
+<!-- 
+Transclusion expansion time report (%,ms,calls,template)
+100.00%    1.577      1 - -total
+100.00%    1.577      1 - Template:Pandocs
+-->
+
+<!-- Saved in parser cache with key gbdevwiki-gbdevwiki_:pcache:idhash:139-0!*!0!!en!*!* and timestamp 20260712003530 and revision id 966
+ -->
+</div><div class="printfooter">
+Retrieved from "<a dir="ltr" href="https://gbdev.gg8.se/wiki/index.php?title=Gameboy_Printer&amp;oldid=966">https://gbdev.gg8.se/wiki/index.php?title=Gameboy_Printer&amp;oldid=966</a>"</div>
+					<div id='catlinks' class='catlinks'><div id="mw-normal-catlinks" class="mw-normal-catlinks"><a href="/wiki/articles/Special:Categories" title="Special:Categories">Category</a>: <ul><li><a href="/wiki/articles/Category:Pandocs_Article" title="Category:Pandocs Article">Pandocs Article</a></li></ul></div></div>					<!-- end content -->
+										<div class="visualClear"></div>
+				</div>
+			</div>
+		</div>
+		<div id="column-one">
+			<h2>Navigation menu</h2>
+					<div id="p-cactions" class="portlet" role="navigation">
+			<h3>Views</h3>
+
+			<div class="pBody">
+				<ul>
+				<li id="ca-nstab-main" class="selected"><a href="/wiki/articles/Gameboy_Printer" title="View the content page [c]" accesskey="c">Page</a></li>
+				<li id="ca-talk" class="new"><a href="/wiki/index.php?title=Talk:Gameboy_Printer&amp;action=edit&amp;redlink=1" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li>
+				<li id="ca-viewsource"><a href="/wiki/index.php?title=Gameboy_Printer&amp;action=edit" title="This page is protected.&#10;You can view its source [e]" accesskey="e">View source</a></li>
+				<li id="ca-history"><a href="/wiki/index.php?title=Gameboy_Printer&amp;action=history" title="Past revisions of this page [h]" accesskey="h">History</a></li>
+				</ul>
+							</div>
+		</div>
+				<div class="portlet" id="p-personal" role="navigation">
+				<h3>Personal tools</h3>
+
+				<div class="pBody">
+					<ul>
+													<li id="pt-login"><a href="/wiki/index.php?title=Special:UserLogin&amp;returnto=Gameboy+Printer" title="You are encouraged to log in; however, it is not mandatory [o]" accesskey="o">Log in</a></li>
+											</ul>
+				</div>
+			</div>
+			<div class="portlet" id="p-logo" role="banner">
+				<a href="/wiki/articles/Main_Page" class="mw-wiki-logo" title="Visit the main page"></a>
+			</div>
+				<div class="generated-sidebar portlet" id="p-site_navigation" role="navigation">
+		<h3>site navigation</h3>
+		<div class='pBody'>
+							<ul>
+											<li id="n-GB-dev-forum"><a href="//gbdev.gg8.se/forums/" rel="nofollow">GB dev forum</a></li>
+											<li id="n-GB-dev-file-hub"><a href="//gbdev.gg8.se/files/" rel="nofollow">GB dev file hub</a></li>
+											<li id="n-Front-page"><a href="//gbdev.gg8.se/" rel="nofollow">Front page</a></li>
+									</ul>
+					</div>
+		</div>
+		<div class="generated-sidebar portlet" id="p-wiki_navigation" role="navigation">
+		<h3>wiki navigation</h3>
+		<div class='pBody'>
+							<ul>
+											<li id="n-mainpage-description"><a href="/wiki/articles/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+											<li id="n-recentchanges"><a href="/wiki/articles/Special:RecentChanges" title="A list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+											<li id="n-randompage"><a href="/wiki/articles/Special:Random" title="Load a random page [x]" accesskey="x">Random page</a></li>
+											<li id="n-help"><a href="https://www.mediawiki.org/wiki/Special:MyLanguage/Help:Contents" title="The place to find out">Help</a></li>
+									</ul>
+					</div>
+		</div>
+			<div id="p-search" class="portlet" role="search">
+			<h3><label for="searchInput">Search</label></h3>
+
+			<div id="searchBody" class="pBody">
+				<form action="/wiki/index.php" id="searchform">
+					<input type='hidden' name="title" value="Special:Search"/>
+					<input type="search" name="search" placeholder="Search" title="Search GbdevWiki [f]" accesskey="f" id="searchInput" />
+					<input type="submit" name="go" value="Go" title="Go to a page with this exact name if exists" id="searchGoButton" class="searchButton" />&#160;
+						<input type="submit" name="fulltext" value="Search" title="Search the pages for this text" id="mw-searchButton" class="searchButton" />
+				</form>
+
+							</div>
+		</div>
+			<div class="portlet" id="p-tb" role="navigation">
+			<h3>Tools</h3>
+
+			<div class="pBody">
+				<ul>
+											<li id="t-whatlinkshere"><a href="/wiki/articles/Special:WhatLinksHere/Gameboy_Printer" title="A list of all wiki pages that link here [j]" accesskey="j">What links here</a></li>
+											<li id="t-recentchangeslinked"><a href="/wiki/articles/Special:RecentChangesLinked/Gameboy_Printer" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+											<li id="t-specialpages"><a href="/wiki/articles/Special:SpecialPages" title="A list of all special pages [q]" accesskey="q">Special pages</a></li>
+											<li id="t-print"><a href="/wiki/index.php?title=Gameboy_Printer&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>
+											<li id="t-permalink"><a href="/wiki/index.php?title=Gameboy_Printer&amp;oldid=966" title="Permanent link to this revision of the page">Permanent link</a></li>
+											<li id="t-info"><a href="/wiki/index.php?title=Gameboy_Printer&amp;action=info" title="More information about this page">Page information</a></li>
+									</ul>
+							</div>
+		</div>
+			</div><!-- end of the left (by default at least) column -->
+		<div class="visualClear"></div>
+					<div id="footer" role="contentinfo">
+						<div id="f-poweredbyico">
+									<a href="//www.mediawiki.org/"><img src="/wiki/resources/assets/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" srcset="/wiki/resources/assets/poweredby_mediawiki_132x47.png 1.5x, /wiki/resources/assets/poweredby_mediawiki_176x62.png 2x" width="88" height="31" /></a>
+							</div>
+					<ul id="f-list">
+									<li id="lastmod"> This page was last modified on 4 April 2020, at 22:41.</li>
+									<li id="privacy"><a href="/wiki/articles/GbdevWiki:Privacy_policy" title="GbdevWiki:Privacy policy">Privacy policy</a></li>
+									<li id="about"><a href="/wiki/articles/GbdevWiki:About" title="GbdevWiki:About">About GbdevWiki</a></li>
+									<li id="disclaimer"><a href="/wiki/articles/GbdevWiki:General_disclaimer" title="GbdevWiki:General disclaimer">Disclaimers</a></li>
+							</ul>
+		</div>
+		</div>
+		<script>if(window.jQuery)jQuery.ready();</script><script>if(window.mw){
+mw.loader.state({"site":"loading","user":"ready","user.groups":"ready"});
+}</script>
+<script>if(window.mw){
+mw.loader.load(["mediawiki.toc","mediawiki.action.view.postEdit","mediawiki.user","mediawiki.hidpi","mediawiki.page.ready","mediawiki.searchSuggest"],null,true);
+}</script>
+<script>if(window.mw){
+document.write("\u003Cscript src=\"https://gbdev.gg8.se/wiki/load.php?debug=false\u0026amp;lang=en\u0026amp;modules=site\u0026amp;only=scripts\u0026amp;skin=monobook\u0026amp;*\"\u003E\u003C/script\u003E");
+}</script>
+<script>if(window.mw){
+mw.config.set({"wgBackendResponseTime":50});
+}</script></body></html>
