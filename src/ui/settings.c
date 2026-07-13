@@ -11,21 +11,22 @@ static int sel;
 
 static void draw(void)
 {
+    // frame spans cols 3..26; the wrap value ends at col 13+12-1 = 24, inside.
     ui_cls();
-    ui_fill(4, 4, 22, 9, 3);
-    ui_frame(4, 4, 22, 9);
+    ui_fill(3, 4, 24, 9, 3);
+    ui_frame(3, 4, 24, 9);
     ui_text(9, 5, "- SETTINGS -", PB_UI);
 
-    ui_text(6, 7, "Wrap:", PB_UI);
-    ui_text(14, 7, g_save.wrap_mode ? "\x03 mid-word \x04" : "\x03 word     \x04", PB_UI);
+    ui_text(5, 7, "Wrap:", PB_UI);
+    ui_text(13, 7, g_save.wrap_mode ? "\x03 mid-word \x04" : "\x03 word     \x04", PB_UI);
 
-    ui_text(6, 9, "Printer:", PB_UI);
-    ui_text(15, 9, g_save.print_speed ? "\x03 normal \x04" : "\x03 fast   \x04", PB_UI);
+    ui_text(5, 9, "Printer:", PB_UI);
+    ui_text(14, 9, g_save.print_speed ? "\x03 normal \x04" : "\x03 fast   \x04", PB_UI);
 
     for (int i = 0; i < N_OPTS; i++)
-        map_put(text_map(), 5, 7 + i * 2, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
+        map_put(text_map(), 4, 7 + i * 2, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
 
-    ui_text(6, 11, "B: back (saves)", PB_UI);
+    ui_text(5, 11, "B: back (saves)", PB_UI);
 }
 
 void settings_enter(void)

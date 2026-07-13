@@ -14,6 +14,7 @@ public class Win32Cap {
     [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
     [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int cx, int cy, uint flags);
     [DllImport("user32.dll")] public static extern bool GetClientRect(IntPtr hWnd, out RECT r);
     [DllImport("user32.dll")] public static extern bool ClientToScreen(IntPtr hWnd, ref POINT p);
     public struct RECT { public int Left, Top, Right, Bottom; }
@@ -32,6 +33,8 @@ try {
     $p.Refresh()
     $hwnd = $p.MainWindowHandle
     if ($hwnd -eq [IntPtr]::Zero) { throw "mGBA window not found" }
+    # pin on-screen and topmost: SWP_NOSIZE=1, HWND_TOPMOST=-1
+    [Win32Cap]::SetWindowPos($hwnd, [IntPtr](-1), 60, 60, 0, 0, 0x0001) | Out-Null
     [Win32Cap]::SetForegroundWindow($hwnd) | Out-Null
     Start-Sleep -Milliseconds 500
 
@@ -60,6 +63,10 @@ try {
         }
         Start-Sleep -Milliseconds 500
     }
+
+    # re-assert foreground: another window may have covered mGBA during input
+    [Win32Cap]::SetForegroundWindow($hwnd) | Out-Null
+    Start-Sleep -Milliseconds 400
 
     $rect = New-Object Win32Cap+RECT
     [Win32Cap]::GetClientRect($hwnd, [ref]$rect) | Out-Null

@@ -33,10 +33,14 @@ typedef struct {
 
 extern SaveHeader g_save;     // in-RAM copy; save_flush_header() persists it
 
+#define DRAWING_BYTES 5760            // 160x144 GB 2bpp canvas
+
 void save_init(void);         // load header (format defaults if magic missing)
 bool save_flush_header(void);
 bool save_doc(int slot, const Document *d);
 bool load_doc(int slot, Document *d);
+bool save_drawing(int slot, const u8 *canvas, const char *name);
+bool load_drawing(int slot, u8 *canvas);
 bool save_delete(int slot);
 
 #endif

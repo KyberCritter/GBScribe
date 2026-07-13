@@ -13,7 +13,8 @@ Charset (internal codes 0x00..0x7F):
   0x0A        NEWLINE control (blank glyph) - keeps '\\n' ASCII-compatible
   0x0B..0x0D  shapes: htri fdia hdia
   0x0E..0x18  box: - | TL TR BL BR |- -| T-down T-up +
-  0x19..0x1F  blank
+  0x19..0x1D  tool icons: pencil eraser line rect stamp
+  0x1E..0x1F  blank
   0x20..0x7E  ASCII
   0x7F        blank
 font8x8 format: byte per row, LSB = leftmost pixel.
@@ -56,6 +57,14 @@ shapes = [
     g("...#....","..###...",".#####..","#######.",".#####..","..###...","...#....","........"),  # filled dia
     g("...#....","..#.#...",".#...#..","#.....#.",".#...#..","..#.#...","...#....","........"),  # hollow dia
 ]
+tool_icons = [
+    g("......##",".....###","....####","...####.","..####..",".####...","###.....","#......."),  # pencil
+    g("........","...#####","..#####.",".#####..","#####...","#####...","........",".#.#.#.."),  # eraser + crumbs
+    g(".......#","......##",".....##.","....##..","..##....",".##.....","##......","#......."),  # line
+    g("........","#######.","#.....#.","#.....#.","#.....#.","#.....#.","#######.","........"),  # rect
+    g("..####..","..####..","...##...","...##...",".######.","########","########","........"),  # stamp
+]
+
 # box glyph indices in font8x8_box (U+2500 block): ─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼
 box_codes = [0x00, 0x02, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x24, 0x2C, 0x34, 0x3C]
 
@@ -65,7 +74,8 @@ charset += shapes[:5]                      # 0x05-0x09
 charset += [BLANK]                         # 0x0A NEWLINE
 charset += shapes[5:]                      # 0x0B-0x0D
 charset += [box[i] for i in box_codes]     # 0x0E-0x18
-charset += [BLANK] * 7                     # 0x19-0x1F
+charset += tool_icons                      # 0x19-0x1D
+charset += [BLANK] * 2                     # 0x1E-0x1F
 charset += [basic[c] for c in range(0x20, 0x7F)]  # 0x20-0x7E
 charset += [BLANK]                         # 0x7F
 assert len(charset) == 128
