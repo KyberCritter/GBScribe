@@ -33,7 +33,7 @@ void title_enter(void)
     ui_text(5, 12, "write \x0C draw \x0C print", PB_UI);   // 20 chars
     ui_text(9, 15, "PRESS START", PB_UI);                  // 11 chars
 
-    ui_text(25, 19, "v1.1", PB_UI);
+    ui_text(25, 19, "v1.2", PB_UI);
 
     char line[24];
     siprintf(line, "save: %s", storage_name());
