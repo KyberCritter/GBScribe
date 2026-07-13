@@ -1,6 +1,8 @@
 // Save format: 1KB header + 8 equal slots filling the rest of storage.
-//   flash (128KB): slot payload 16,256 B — a full 16,000-char doc fits.
-//   sram fallback (32KB): slot payload 3,968 B — docs are truncated to fit.
+// Slot size depends on the runtime-detected backend:
+//   flash128: 16,256 B — a full 16,000-char doc fits
+//   sram64:    8,064 B — drawings (5,760) fit, docs truncate
+//   sram32/flash64: 3,968/8,064 B — small
 #ifndef STORAGE_SAVE_H
 #define STORAGE_SAVE_H
 
@@ -10,7 +12,8 @@
 #define SLOT_COUNT     8
 #define SLOT_NAME_LEN  14
 #define SAVE_HDR_SIZE  1024
-#define SLOT_SIZE      ((STORAGE_SIZE - SAVE_HDR_SIZE) / SLOT_COUNT)
+
+u32 save_slot_size(void);     // payload bytes per slot for the active backend
 
 enum { SLOT_EMPTY = 0, SLOT_DOC = 1, SLOT_DRAWING = 2 };
 

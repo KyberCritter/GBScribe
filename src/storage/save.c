@@ -8,7 +8,12 @@
 
 SaveHeader g_save;
 
-static u32 slot_off(int slot) { return SAVE_HDR_SIZE + (u32)slot * SLOT_SIZE; }
+u32 save_slot_size(void)
+{
+    return (storage_size() - SAVE_HDR_SIZE) / SLOT_COUNT;
+}
+
+static u32 slot_off(int slot) { return SAVE_HDR_SIZE + (u32)slot * save_slot_size(); }
 
 void save_init(void)
 {
@@ -44,8 +49,8 @@ static void derive_name(const Document *d, char *out)
 bool save_doc(int slot, const Document *d)
 {
     int len = d->len;
-    if (len > (int)SLOT_SIZE)
-        len = SLOT_SIZE;                       // sram fallback truncates
+    if (len > (int)save_slot_size())
+        len = save_slot_size();                // small backends truncate
 
     if (!storage_write(slot_off(slot), d->text, len))
         return false;
@@ -73,8 +78,8 @@ bool load_doc(int slot, Document *d)
 
 bool save_drawing(int slot, const u8 *canvas, const char *name)
 {
-    if (DRAWING_BYTES > SLOT_SIZE)
-        return false;                          // sram fallback can't hold one
+    if (DRAWING_BYTES > save_slot_size())
+        return false;                          // backend slots too small (sram32)
 
     if (!storage_write(slot_off(slot), canvas, DRAWING_BYTES))
         return false;
