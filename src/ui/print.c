@@ -42,13 +42,24 @@ static u8 pkt_buf[GBP_PACKET_MAX];
 
 static const Document *pdoc;
 static const u8 *src_page;     // one-shot: raw page to print instead of the doc
-static AppState src_back;      // where B returns for that page
+static const char *src_text;   // one-shot: text to print instead of the doc
+static int src_len;
+static AppState src_back;      // where B returns for that page/text
 static const u8 *job_page;     // latched for this print job
+static const char *job_text;   // latched text source (manual or editor doc)
+static int job_len;
 static AppState back_state;
 
 void print_set_page(const void *page5760, AppState back)
 {
     src_page = page5760;
+    src_back = back;
+}
+
+void print_set_text(const char *text, int len, AppState back)
+{
+    src_text = text;
+    src_len = len;
     src_back = back;
 }
 
@@ -62,46 +73,46 @@ static void draw_screen(void)
 
     switch (ps) {
     case PS_NO_PRINTER:
-        ui_text(6, 8, "no printer found", PB_UI);
-        ui_text(6, 10, "check the cable +", PB_UI);
-        ui_text(6, 11, "printer power", PB_UI);
-        ui_text(6, 13, "B: back", PB_UI);
+        ui_text(6, 8, "No printer found.", PB_UI);
+        ui_text(6, 10, "Check the cable +", PB_UI);
+        ui_text(6, 11, "printer power.", PB_UI);
+        ui_text(6, 13, "B: Back", PB_UI);
         break;
     case PS_EMPTY_DOC:
-        ui_text(6, 9, "document is empty", PB_UI);
-        ui_text(6, 13, "B: back", PB_UI);
+        ui_text(6, 9, "Document is empty.", PB_UI);
+        ui_text(6, 13, "B: Back", PB_UI);
         break;
     case PS_CONFIRM:
         siprintf(line, "%d page%s of paper", n_pages, n_pages == 1 ? "" : "s");
         ui_text(6, 8, line, PB_UI);
-        ui_text(6, 11, "A: print  B: back", PB_UI);
+        ui_text(6, 11, "A: Print  B: Back", PB_UI);
         break;
     case PS_DONE:
-        ui_text(6, 9, "done!", PB_UI);
-        ui_text(6, 13, "B: back", PB_UI);
+        ui_text(6, 9, "Done!", PB_UI);
+        ui_text(6, 13, "B: Back", PB_UI);
         break;
     case PS_ERROR:
         if (link_lost) {
-            ui_text(6, 7,  "printer stopped", PB_UI);
+            ui_text(6, 7,  "Printer stopped", PB_UI);
             ui_text(6, 8,  "responding.", PB_UI);
-            ui_text(6, 10, "check the cable +", PB_UI);
-            ui_text(6, 11, "printer batteries", PB_UI);
+            ui_text(6, 10, "Check the cable +", PB_UI);
+            ui_text(6, 11, "printer batteries.", PB_UI);
         } else {
-            ui_text(6, 8, "printer error:", PB_UI);
-            if (last_status & GBP_STATUS_PAPER_JAM)    ui_text(8, 9, "paper jam", PB_UI);
-            else if (last_status & GBP_STATUS_LOW_BATTERY) ui_text(8, 9, "low battery", PB_UI);
-            else if (last_status & GBP_STATUS_CHECKSUM_ERR) ui_text(8, 9, "bad checksum", PB_UI);
+            ui_text(6, 8, "Printer error:", PB_UI);
+            if (last_status & GBP_STATUS_PAPER_JAM)    ui_text(8, 9, "Paper jam", PB_UI);
+            else if (last_status & GBP_STATUS_LOW_BATTERY) ui_text(8, 9, "Low battery", PB_UI);
+            else if (last_status & GBP_STATUS_CHECKSUM_ERR) ui_text(8, 9, "Bad checksum", PB_UI);
             else {
-                siprintf(line, "status %02X", last_status);
+                siprintf(line, "Status %02X", last_status);
                 ui_text(8, 9, line, PB_UI);
             }
         }
-        ui_text(6, 13, "B: back", PB_UI);
+        ui_text(6, 13, "B: Back", PB_UI);
         break;
     default:
-        siprintf(line, "page %d/%d", cur_page + 1, n_pages);
+        siprintf(line, "Page %d/%d", cur_page + 1, n_pages);
         ui_text(6, 8, line, PB_UI);
-        ui_text(6, 13, "B: cancel", PB_UI);
+        ui_text(6, 13, "B: Cancel", PB_UI);
         break;
     }
 }
@@ -114,7 +125,7 @@ static void draw_progress(void)
         map_put(chrome_map(), 6 + i, 10, SOLID(i < filled ? 4 : 5), PB_SOLID);
     }
     if (ps == PS_WAIT) {
-        ui_text(6, 11, saw_printing ? "printing...  " : "waiting...   ", PB_UI);
+        ui_text(6, 11, saw_printing ? "Printing...  " : "Waiting...   ", PB_UI);
     }
 }
 
@@ -123,8 +134,16 @@ void print_enter(void)
     obj_hide(&oam_mem[0]);
     pdoc = editor_doc();
     job_page = src_page;
-    back_state = src_page ? src_back : ST_EDITOR;
+    back_state = (src_page || src_text) ? src_back : ST_EDITOR;
+    if (src_text) {
+        job_text = src_text;
+        job_len = src_len;
+    } else {
+        job_text = pdoc->text;
+        job_len = pdoc->len;
+    }
     src_page = NULL;
+    src_text = NULL;
 
     if (!gbp_link_detect(NULL)) {
         ps = PS_NO_PRINTER;
@@ -132,10 +151,10 @@ void print_enter(void)
         n_pages = 1;
         cur_page = 0;
         ps = PS_CONFIRM;
-    } else if (pdoc->len == 0) {
+    } else if (job_len == 0) {
         ps = PS_EMPTY_DOC;
     } else {
-        layout_reflow(&plo, pdoc->text, pdoc->len, GBP_TILES_PER_ROW,
+        layout_reflow(&plo, job_text, job_len, GBP_TILES_PER_ROW,
                       g_save.wrap_mode ? WRAP_MID_WORD : WRAP_POST_WORD);
         n_pages = gbp_page_count(&plo);
         cur_page = 0;
@@ -163,7 +182,7 @@ static void start_page(void)
     if (job_page)
         memcpy(page_buf, job_page, GBP_PAGE_BYTES);        // canvas/QR IS a page
     else
-        gbp_compose_text_page(pdoc->text, pdoc->len, &plo,
+        gbp_compose_text_page(job_text, job_len, &plo,
                               cur_page * GBP_ROWS_PER_PAGE, page_buf);
     data_idx = 0;
     link_lost = false;

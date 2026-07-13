@@ -37,6 +37,7 @@ void app_goto(AppState s)
         case ST_SLOTS_LOAD:     slots_enter2(0, 0);    break;
         case ST_SLOTS_SAVE_ART: slots_enter2(1, 1);    break;
         case ST_SLOTS_LOAD_ART: slots_enter2(0, 1);    break;
+        case ST_SLOTS_LOAD_ANY: slots_enter2(0, 2);    break;
         case ST_SETTINGS:       settings_enter();      break;
         case ST_PRINT:          print_enter();         break;
         case ST_CREDITS:        credits_enter();       break;
@@ -62,7 +63,8 @@ void app_frame(int frame)
     case ST_SLOTS_SAVE:
     case ST_SLOTS_LOAD:
     case ST_SLOTS_SAVE_ART:
-    case ST_SLOTS_LOAD_ART: slots_frame(frame);    break;
+    case ST_SLOTS_LOAD_ART:
+    case ST_SLOTS_LOAD_ANY: slots_frame(frame);    break;
     case ST_SETTINGS:       settings_frame(frame); break;
     case ST_PRINT:          print_frame(frame);    break;
     case ST_DRAW:           draw_frame(frame);     break;

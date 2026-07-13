@@ -27,7 +27,7 @@ static void draw_items(void)
     siprintf(line, "Palette: %s", draw_pal_name(g_save.draw_pal));
     ui_text(8, 13, line, PB_UI);
     ui_text(8, 15, "Clear canvas", PB_UI);
-    ui_text(8, 17, "Back to writing", PB_UI);
+    ui_text(8, 17, "Main menu", PB_UI);
 
     for (int i = 0; i < N_ITEMS; i++)
         map_put(text_map(), 7, 5 + i * 2, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
@@ -60,7 +60,7 @@ void drawmenu_frame(int frame)
             draw_items();
             break;
         case 5: draw_clear(); app_goto(ST_DRAW); break;
-        case 6: app_goto(ST_EDITOR); break;
+        case 6: app_goto(ST_TITLE); break;
         }
     }
 }

@@ -18,12 +18,12 @@ static void draw(void)
     ui_text(9, 5, "- SETTINGS -", PB_UI);
 
     ui_text(5, 7, "Wrap:", PB_UI);
-    ui_text(13, 7, g_save.wrap_mode ? "\x03 mid-word \x04" : "\x03 word     \x04", PB_UI);
+    ui_text(13, 7, g_save.wrap_mode ? "\x03 Mid-word \x04" : "\x03 Word     \x04", PB_UI);
 
     for (int i = 0; i < N_OPTS; i++)
         map_put(text_map(), 4, 7 + i * 2, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
 
-    ui_text(5, 11, "B: back (saves)", PB_UI);
+    ui_text(5, 11, "B: Back (saves)", PB_UI);
 }
 
 void settings_enter(void)
