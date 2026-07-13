@@ -9,6 +9,7 @@
 #include "core/charset.h"
 #include "storage/storage.h"
 #include "storage/save.h"
+#include "sound.h"
 
 static int sel;
 static int saving;          // 1 = save mode, 0 = load mode
@@ -81,10 +82,13 @@ void slots_frame(int frame)
     if (key_hit(KEY_B))    { app_goto(art ? ST_DRAWMENU : ST_MENU); return; }
     if (key_hit(KEY_A)) {
         if (saving && art) {
-            show_msg(save_drawing(sel, draw_canvas(), "drawing")
-                     ? "SAVED" : "SAVE FAILED!");
+            bool ok = save_drawing(sel, draw_canvas(), "drawing");
+            if (ok) sfx_ding();
+            show_msg(ok ? "SAVED" : "SAVE FAILED!");
         } else if (saving) {
-            show_msg(save_doc(sel, editor_doc()) ? "SAVED" : "SAVE FAILED!");
+            bool ok = save_doc(sel, editor_doc());
+            if (ok) sfx_ding();
+            show_msg(ok ? "SAVED" : "SAVE FAILED!");
         } else if (art) {
             if (g_save.dir[sel].type == SLOT_DRAWING) {
                 load_drawing(sel, draw_canvas());

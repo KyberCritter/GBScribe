@@ -5,6 +5,7 @@
 #include "gfx/font.h"
 #include "ui/screen.h"
 #include "app.h"
+#include "sound.h"
 
 static void init_video(void)
 {
@@ -38,11 +39,13 @@ int main(void)
     irq_enable(II_VBLANK);
 
     init_video();
+    sound_init();
     app_init();
 
     int frame = 0;
     while (1) {
         VBlankIntrWait();
+        sound_frame();
         key_poll();
         frame++;
         app_frame(frame);

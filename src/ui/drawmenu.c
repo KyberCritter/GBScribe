@@ -51,7 +51,7 @@ void drawmenu_frame(int frame)
     if (key_hit(KEY_A)) {
         switch (sel) {
         case 0: app_goto(ST_DRAW); break;
-        case 1: print_set_drawing(); app_goto(ST_PRINT); break;
+        case 1: print_set_page(draw_canvas(), ST_DRAWMENU); app_goto(ST_PRINT); break;
         case 2: app_goto(ST_SLOTS_SAVE_ART); break;
         case 3: app_goto(ST_SLOTS_LOAD_ART); break;
         case 4:
