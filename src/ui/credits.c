@@ -31,17 +31,17 @@ static void draw_about(void)
     ui_text(1, 2,  "GBScribe", PB_UI);
     ui_logo(11, 1);
 
-    ui_text(1, 4,  "by Scott", PB_UI);
+    ui_text(1, 4,  "By Scott", PB_UI);
     ui_text(1, 5,  "Ratchford", PB_UI);
 
     ui_text(1, 7,  "is licensed", PB_UI);
     ui_text(1, 8,  "under the", PB_UI);
     ui_text(1, 9,  "MIT License", PB_UI);
 
-    ui_text(1, 11, "A: print QR", PB_UI);
-    ui_text(1, 12, "B: back", PB_UI);
+    ui_text(1, 11, "A: Print QR", PB_UI);
+    ui_text(1, 12, "B: Back", PB_UI);
     map_put(text_map(), 1, 13, CH_ARR_DOWN, PB_UI);
-    ui_text(3, 13, "legal info", PB_UI);
+    ui_text(3, 13, "Legal info", PB_UI);
 
     ui_text(1, 16, "For more information,", PB_UI);
     ui_text(1, 17, "visit:", PB_UI);
@@ -54,7 +54,7 @@ static void draw_legal(void)
 
     ui_logo(1, 1);
     ui_text(4, 1,  "GBScribe", PB_UI);
-    ui_text(4, 2,  "by Scott Ratchford", PB_UI);
+    ui_text(4, 2,  "By Scott Ratchford", PB_UI);
 
     ui_text(1, 4,  "is licensed under the", PB_UI);
     ui_text(1, 5,  "MIT License - full text in", PB_UI);
@@ -73,7 +73,7 @@ static void draw_legal(void)
     ui_text(1, 18, "in the repo.", PB_UI);
 
     map_put(text_map(), 1, 19, CH_ARR_UP, PB_UI);
-    ui_text(3, 19, "back", PB_UI);
+    ui_text(3, 19, "Back", PB_UI);
 }
 
 void credits_enter(void)

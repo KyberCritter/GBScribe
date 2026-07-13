@@ -13,13 +13,15 @@
 
 static int sel;
 static int saving;          // 1 = save mode, 0 = load mode
-static int art;             // 1 = drawing slots flow, 0 = document flow
+static int art;             // 0 = document flow, 1 = drawing flow, 2 = any (title)
 static int msg_timer;       // frames left to show the status message
 
 static void draw_list(void)
 {
     ui_cls();
-    if (art)
+    if (art == 2)
+        ui_text(6, 1, "LOAD A FILE", PB_UI);
+    else if (art)
         ui_text(6, 1, saving ? "SAVE DRAWING TO" : "LOAD DRAWING FROM", PB_UI);
     else
         ui_text(6, 1, saving ? "SAVE TO SLOT" : "LOAD FROM SLOT", PB_UI);
@@ -41,7 +43,7 @@ static void draw_list(void)
         ui_text(5, 3 + i * 2, line, PB_UI);
         map_put(text_map(), 3, 3 + i * 2, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
     }
-    ui_text(3, 19, "A:ok  B:back", PB_UI);
+    ui_text(3, 19, "A: OK  B: Back", PB_UI);
 }
 
 static void show_msg(const char *m)
@@ -79,9 +81,25 @@ void slots_frame(int frame)
 
     if (key_hit(KEY_UP))   { sel = (sel + SLOT_COUNT - 1) % SLOT_COUNT; draw_list(); }
     if (key_hit(KEY_DOWN)) { sel = (sel + 1) % SLOT_COUNT; draw_list(); }
-    if (key_hit(KEY_B))    { app_goto(art ? ST_DRAWMENU : ST_MENU); return; }
+    if (key_hit(KEY_B)) {
+        app_goto(art == 2 ? ST_TITLE : art ? ST_DRAWMENU : ST_MENU);
+        return;
+    }
     if (key_hit(KEY_A)) {
-        if (saving && art) {
+        if (art == 2) {
+            // title-screen load: accept either type, route to its editor
+            if (g_save.dir[sel].type == SLOT_DOC) {
+                load_doc(sel, editor_doc());
+                editor_reloaded();
+                app_goto(ST_EDITOR);
+            } else if (g_save.dir[sel].type == SLOT_DRAWING) {
+                load_drawing(sel, draw_canvas());
+                draw_canvas_reloaded();
+                app_goto(ST_DRAW);
+            } else {
+                show_msg("Empty slot");
+            }
+        } else if (saving && art) {
             bool ok = save_drawing(sel, draw_canvas(), "drawing");
             if (ok) sfx_ding();
             show_msg(ok ? "SAVED" : "SAVE FAILED!");
@@ -95,7 +113,7 @@ void slots_frame(int frame)
                 draw_canvas_reloaded();
                 app_goto(ST_DRAW);
             } else {
-                show_msg(g_save.dir[sel].type == SLOT_DOC ? "that's a doc" : "empty slot");
+                show_msg(g_save.dir[sel].type == SLOT_DOC ? "That's a doc" : "Empty slot");
             }
         } else {
             if (g_save.dir[sel].type == SLOT_DOC) {
@@ -103,7 +121,7 @@ void slots_frame(int frame)
                 editor_reloaded();
                 app_goto(ST_EDITOR);
             } else {
-                show_msg(g_save.dir[sel].type == SLOT_DRAWING ? "that's art" : "empty slot");
+                show_msg(g_save.dir[sel].type == SLOT_DRAWING ? "That's art" : "Empty slot");
             }
         }
     }

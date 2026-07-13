@@ -4,6 +4,7 @@
 #include "ui/screen.h"
 #include "ui/editor.h"
 #include "core/charset.h"
+#include "core/manual.h"
 
 static const char *items[] = {
     "Resume",
@@ -13,23 +14,24 @@ static const char *items[] = {
     "New document",
     "Drawing mode",
     "Settings",
+    "Print manual",
     "About",
     "Main menu",
 };
-#define N_ITEMS 9
+#define N_ITEMS 10
 
 static int sel;
 
 static void draw(void)
 {
-    // frame fills the screen height; 9 items at rows 2..18 stay inside,
-    // and the longest item "Print document" (14) ends at col 21.
+    // 10 single-spaced items at rows 5..14 inside the frame; the longest item
+    // "Print document" (14) ends at col 21, inside the right edge (col 24).
     ui_cls();
-    ui_fill(6, 0, 19, 20, 3);
-    ui_frame(6, 0, 19, 20);
+    ui_fill(6, 3, 19, 14, 3);
+    ui_frame(6, 3, 19, 14);
     for (int i = 0; i < N_ITEMS; i++) {
-        ui_text(8, 2 + i * 2, items[i], PB_UI);
-        map_put(text_map(), 7, 2 + i * 2, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
+        ui_text(9, 5 + i, items[i], PB_UI);
+        map_put(text_map(), 8, 5 + i, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
     }
 }
 
@@ -55,8 +57,12 @@ void menu_frame(int frame)
         case 4: editor_new(); app_goto(ST_EDITOR); break;
         case 5: app_goto(ST_DRAW); break;
         case 6: app_goto(ST_SETTINGS); break;
-        case 7: app_goto(ST_CREDITS); break;
-        case 8: app_goto(ST_TITLE); break;
+        case 7:
+            print_set_text(manual_text, manual_len, ST_MENU);
+            app_goto(ST_PRINT);
+            break;
+        case 8: app_goto(ST_CREDITS); break;
+        case 9: app_goto(ST_TITLE); break;
         }
     }
 }

@@ -10,6 +10,7 @@ typedef enum {
     ST_SLOTS_LOAD,
     ST_SLOTS_SAVE_ART,
     ST_SLOTS_LOAD_ART,
+    ST_SLOTS_LOAD_ANY,   // title-screen "Load a file": docs and drawings both
     ST_SETTINGS,
     ST_PRINT,
     ST_DRAW,
@@ -33,5 +34,9 @@ void credits_enter(void);  void credits_frame(int frame);
 // Print a raw 5,760-byte page (canvas, QR) instead of the document; `back` is
 // where B returns from the print scene. One-shot: set right before ST_PRINT.
 void print_set_page(const void *page5760, AppState back);
+
+// Print arbitrary text (e.g. the manual) instead of the editor document.
+// One-shot, same contract as print_set_page.
+void print_set_text(const char *text, int len, AppState back);
 
 #endif
