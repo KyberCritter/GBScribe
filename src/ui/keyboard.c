@@ -8,56 +8,58 @@
 #define K(cx, cy, ch)      { cx, cy, 1, ch, NULL }
 #define KW(cx, cy, ww, act, lab) { cx, cy, ww, act, lab }
 
-// Common bottom row (y=19): layer switches, space, enter.
-#define COMMON_ROW \
+// All layers share the same grid: key columns at x = 2,4,...,20 on rows
+// 14-17 (no QWERTY stagger — up/down moves straight), SPACE/ENTER stacked
+// on the right side, and only the four layer switches on the bottom row.
+#define COMMON_KEYS \
+    KW(24, 15, 5, ' ',            "SPACE"), \
+    KW(24, 17, 5, KA_ENTER,       "ENTER"), \
     KW( 2, 19, 3, KA_LAYER_LOWER, "abc"), \
     KW( 6, 19, 3, KA_LAYER_UPPER, "ABC"), \
     KW(10, 19, 3, KA_LAYER_SYM,   "!@#"), \
-    KW(14, 19, 3, KA_LAYER_SHAPE, "\x09\x06\x04"), \
-    KW(18, 19, 5, ' ',            "SPACE"), \
-    KW(24, 19, 3, KA_ENTER,       "ENT")
+    KW(14, 19, 3, KA_LAYER_SHAPE, "\x09\x06\x04")
 
 static const Key kb_lower[] = {
-    K( 5,15,'q'), K( 7,15,'w'), K( 9,15,'e'), K(11,15,'r'), K(13,15,'t'),
-    K(15,15,'y'), K(17,15,'u'), K(19,15,'i'), K(21,15,'o'), K(23,15,'p'),
-    K( 6,16,'a'), K( 8,16,'s'), K(10,16,'d'), K(12,16,'f'), K(14,16,'g'),
-    K(16,16,'h'), K(18,16,'j'), K(20,16,'k'), K(22,16,'l'),
-    K( 7,17,'z'), K( 9,17,'x'), K(11,17,'c'), K(13,17,'v'), K(15,17,'b'),
-    K(17,17,'n'), K(19,17,'m'), K(21,17,','), K(23,17,'.'),
-    COMMON_ROW,
+    K( 2,15,'q'), K( 4,15,'w'), K( 6,15,'e'), K( 8,15,'r'), K(10,15,'t'),
+    K(12,15,'y'), K(14,15,'u'), K(16,15,'i'), K(18,15,'o'), K(20,15,'p'),
+    K( 2,16,'a'), K( 4,16,'s'), K( 6,16,'d'), K( 8,16,'f'), K(10,16,'g'),
+    K(12,16,'h'), K(14,16,'j'), K(16,16,'k'), K(18,16,'l'),
+    K( 2,17,'z'), K( 4,17,'x'), K( 6,17,'c'), K( 8,17,'v'), K(10,17,'b'),
+    K(12,17,'n'), K(14,17,'m'), K(16,17,','), K(18,17,'.'),
+    COMMON_KEYS,
 };
 
 static const Key kb_upper[] = {
-    K( 5,15,'Q'), K( 7,15,'W'), K( 9,15,'E'), K(11,15,'R'), K(13,15,'T'),
-    K(15,15,'Y'), K(17,15,'U'), K(19,15,'I'), K(21,15,'O'), K(23,15,'P'),
-    K( 6,16,'A'), K( 8,16,'S'), K(10,16,'D'), K(12,16,'F'), K(14,16,'G'),
-    K(16,16,'H'), K(18,16,'J'), K(20,16,'K'), K(22,16,'L'),
-    K( 7,17,'Z'), K( 9,17,'X'), K(11,17,'C'), K(13,17,'V'), K(15,17,'B'),
-    K(17,17,'N'), K(19,17,'M'), K(21,17,','), K(23,17,'.'),
-    COMMON_ROW,
+    K( 2,15,'Q'), K( 4,15,'W'), K( 6,15,'E'), K( 8,15,'R'), K(10,15,'T'),
+    K(12,15,'Y'), K(14,15,'U'), K(16,15,'I'), K(18,15,'O'), K(20,15,'P'),
+    K( 2,16,'A'), K( 4,16,'S'), K( 6,16,'D'), K( 8,16,'F'), K(10,16,'G'),
+    K(12,16,'H'), K(14,16,'J'), K(16,16,'K'), K(18,16,'L'),
+    K( 2,17,'Z'), K( 4,17,'X'), K( 6,17,'C'), K( 8,17,'V'), K(10,17,'B'),
+    K(12,17,'N'), K(14,17,'M'), K(16,17,','), K(18,17,'.'),
+    COMMON_KEYS,
 };
 
 static const Key kb_sym[] = {
-    K( 5,14,'1'), K( 7,14,'2'), K( 9,14,'3'), K(11,14,'4'), K(13,14,'5'),
-    K(15,14,'6'), K(17,14,'7'), K(19,14,'8'), K(21,14,'9'), K(23,14,'0'),
-    K( 5,15,'!'), K( 7,15,'@'), K( 9,15,'#'), K(11,15,'$'), K(13,15,'%'),
-    K(15,15,'^'), K(17,15,'&'), K(19,15,'*'), K(21,15,'('), K(23,15,')'),
-    K( 5,16,'-'), K( 7,16,'_'), K( 9,16,'='), K(11,16,'+'), K(13,16,'['),
-    K(15,16,']'), K(17,16,'{'), K(19,16,'}'), K(21,16,'\\'), K(23,16,'|'),
-    K( 5,17,';'), K( 7,17,':'), K( 9,17,'\''), K(11,17,'"'), K(13,17,'<'),
-    K(15,17,'>'), K(17,17,'/'), K(19,17,'?'), K(21,17,'~'), K(23,17,'`'),
-    COMMON_ROW,
+    K( 2,14,'1'), K( 4,14,'2'), K( 6,14,'3'), K( 8,14,'4'), K(10,14,'5'),
+    K(12,14,'6'), K(14,14,'7'), K(16,14,'8'), K(18,14,'9'), K(20,14,'0'),
+    K( 2,15,'!'), K( 4,15,'@'), K( 6,15,'#'), K( 8,15,'$'), K(10,15,'%'),
+    K(12,15,'^'), K(14,15,'&'), K(16,15,'*'), K(18,15,'('), K(20,15,')'),
+    K( 2,16,'-'), K( 4,16,'_'), K( 6,16,'='), K( 8,16,'+'), K(10,16,'['),
+    K(12,16,']'), K(14,16,'{'), K(16,16,'}'), K(18,16,'\\'), K(20,16,'|'),
+    K( 2,17,';'), K( 4,17,':'), K( 6,17,'\''), K( 8,17,'"'), K(10,17,'<'),
+    K(12,17,'>'), K(14,17,'/'), K(16,17,'?'), K(18,17,'~'), K(20,17,'`'),
+    COMMON_KEYS,
 };
 
 static const Key kb_shape[] = {
-    K( 5,14,CH_ARR_UP), K( 7,14,CH_ARR_DOWN), K( 9,14,CH_ARR_LEFT), K(11,14,CH_ARR_RIGHT),
-    K( 5,15,CH_SQ_FILL), K( 7,15,CH_SQ_HOLLOW), K( 9,15,CH_CIRC_FILL), K(11,15,CH_CIRC_HOLLOW),
-    K(13,15,CH_TRI_FILL), K(15,15,CH_TRI_HOLLOW), K(17,15,CH_DIA_FILL), K(19,15,CH_DIA_HOLLOW),
-    K( 5,16,CH_BOX_H), K( 7,16,CH_BOX_V), K( 9,16,CH_BOX_TL), K(11,16,CH_BOX_TR),
-    K(13,16,CH_BOX_BL), K(15,16,CH_BOX_BR),
-    K( 5,17,CH_BOX_LT), K( 7,17,CH_BOX_RT), K( 9,17,CH_BOX_TT), K(11,17,CH_BOX_BT),
-    K(13,17,CH_BOX_X),
-    COMMON_ROW,
+    K( 2,14,CH_ARR_UP), K( 4,14,CH_ARR_DOWN), K( 6,14,CH_ARR_LEFT), K( 8,14,CH_ARR_RIGHT),
+    K( 2,15,CH_SQ_FILL), K( 4,15,CH_SQ_HOLLOW), K( 6,15,CH_CIRC_FILL), K( 8,15,CH_CIRC_HOLLOW),
+    K(10,15,CH_TRI_FILL), K(12,15,CH_TRI_HOLLOW), K(14,15,CH_DIA_FILL), K(16,15,CH_DIA_HOLLOW),
+    K( 2,16,CH_BOX_H), K( 4,16,CH_BOX_V), K( 6,16,CH_BOX_TL), K( 8,16,CH_BOX_TR),
+    K(10,16,CH_BOX_BL), K(12,16,CH_BOX_BR),
+    K( 2,17,CH_BOX_LT), K( 4,17,CH_BOX_RT), K( 6,17,CH_BOX_TT), K( 8,17,CH_BOX_BT),
+    K(10,17,CH_BOX_X),
+    COMMON_KEYS,
 };
 
 static const Key *layers[KB_LAYER_COUNT] = { kb_lower, kb_upper, kb_sym, kb_shape };
@@ -131,29 +133,28 @@ int kb_move(int layer, int sel, int dx, int dy)
         return sel;
     }
     if (dy) {
-        // nearest row in direction dy (wrapping), then nearest x within it
-        int best_y = -1;
+        // scored: row distance (x8) + column distance, so a key straight
+        // below two rows away beats a far-off key one row away (SPACE->ENTER)
+        int best = -1, best_s = 1 << 30;
         for (int i = 0; i < n; i++) {
-            int d = (ks[i].y - cur->y) * dy;
-            if (d > 0 && (best_y < 0 || d < (best_y - cur->y) * dy))
-                best_y = ks[i].y;
+            int dr = (ks[i].y - cur->y) * dy;
+            if (dr <= 0) continue;
+            int dc = key_center(&ks[i]) - key_center(cur);
+            if (dc < 0) dc = -dc;
+            int s = dr * 8 + dc;
+            if (s < best_s) { best = i; best_s = s; }
         }
-        if (best_y < 0) {
-            // wrap: pick the row furthest in the opposite direction
-            for (int i = 0; i < n; i++) {
-                int d = (ks[i].y - cur->y) * dy;
-                if (d <= 0 && (best_y < 0 || (ks[i].y - best_y) * dy < 0))
-                    best_y = ks[i].y;
-            }
-        }
-        int best = sel, best_d = 1 << 30;
+        if (best >= 0) return best;
+        // wrap: same score over the opposite side favours the far edge row
         for (int i = 0; i < n; i++) {
-            if (ks[i].y != best_y) continue;
-            int d = key_center(&ks[i]) - key_center(cur);
-            if (d < 0) d = -d;
-            if (d < best_d) { best = i; best_d = d; }
+            if (i == sel) continue;
+            int dr = (ks[i].y - cur->y) * dy;   // <= 0 here
+            int dc = key_center(&ks[i]) - key_center(cur);
+            if (dc < 0) dc = -dc;
+            int s = dr * 8 + dc;
+            if (s < best_s) { best = i; best_s = s; }
         }
-        return best;
+        return best >= 0 ? best : sel;
     }
     return sel;
 }

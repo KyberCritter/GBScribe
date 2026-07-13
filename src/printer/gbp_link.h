@@ -23,12 +23,9 @@ void gbp_link_send(const u8 *pkt, int n, u16 half_ticks, u8 *keepalive, u8 *stat
 // Uses the safe 8192 Hz rate. No paper is used.
 bool gbp_link_detect(u8 *status_out);
 
-// half periods in TM0 ticks (59.6ns each): 61us ~ 1024 (8192 Hz stock rate),
-// 30us ~ 503 (~16 kHz "double speed", proven by Boichot's Arduino master)
+// half period in timer ticks (59.6ns each): 61us ~ 1024 (8192 Hz stock rate).
+// A ~16 kHz "fast" mode existed but failed on real hardware (status 00), so
+// everything runs at the stock rate now.
 #define GBP_HALF_NORMAL 1024
-#define GBP_HALF_FAST   503
-
-// ticks for the current speed setting (g_save.print_speed: 0 = fast)
-u16 gbp_half_ticks(void);
 
 #endif
