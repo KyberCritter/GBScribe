@@ -5,31 +5,35 @@
 #include "ui/ui.h"
 #include "ui/screen.h"
 #include "ui/editor.h"
+#include "ui/draw.h"
 #include "core/charset.h"
 #include "storage/storage.h"
 #include "storage/save.h"
 
 static int sel;
 static int saving;          // 1 = save mode, 0 = load mode
+static int art;             // 1 = drawing slots flow, 0 = document flow
 static int msg_timer;       // frames left to show the status message
 
-static void draw(void)
+static void draw_list(void)
 {
     ui_cls();
-    ui_text(6, 1, saving ? "SAVE TO SLOT" : "LOAD FROM SLOT", PB_UI);
+    if (art)
+        ui_text(6, 1, saving ? "SAVE DRAWING TO" : "LOAD DRAWING FROM", PB_UI);
+    else
+        ui_text(6, 1, saving ? "SAVE TO SLOT" : "LOAD FROM SLOT", PB_UI);
 
     for (int i = 0; i < SLOT_COUNT; i++) {
         char line[28];
         const SlotDir *e = &g_save.dir[i];
-        if (e->type == SLOT_DOC) {
+        if (e->type == SLOT_DOC || e->type == SLOT_DRAWING) {
             char name[SLOT_NAME_LEN + 1];
             memcpy(name, e->name, SLOT_NAME_LEN);
             name[SLOT_NAME_LEN] = 0;
             if (!name[0])
                 strcpy(name, "(untitled)");
-            siprintf(line, "%d. %-14s doc", i + 1, name);
-        } else if (e->type == SLOT_DRAWING) {
-            siprintf(line, "%d. %-14s art", i + 1, "(drawing)");
+            siprintf(line, "%d. %-14s %s", i + 1, name,
+                     e->type == SLOT_DOC ? "doc" : "art");
         } else {
             siprintf(line, "%d. --empty--", i + 1);
         }
@@ -48,13 +52,15 @@ static void show_msg(const char *m)
     msg_timer = 60;
 }
 
-void slots_enter(int save_mode)
+void slots_enter2(int save_mode, int art_mode)
 {
     sel = 0;
     saving = save_mode;
+    art = art_mode;
     msg_timer = 0;
     obj_hide(&oam_mem[0]);
-    draw();
+    obj_hide(&oam_mem[1]);
+    draw_list();
 }
 
 void slots_frame(int frame)
@@ -63,26 +69,37 @@ void slots_frame(int frame)
     if (msg_timer > 0) {
         if (--msg_timer == 0) {
             if (saving)
-                app_goto(ST_EDITOR);   // after a save confirmation, back to writing
+                app_goto(art ? ST_DRAW : ST_EDITOR);
             else
-                draw();
+                draw_list();
         }
         return;
     }
 
-    if (key_hit(KEY_UP))   { sel = (sel + SLOT_COUNT - 1) % SLOT_COUNT; draw(); }
-    if (key_hit(KEY_DOWN)) { sel = (sel + 1) % SLOT_COUNT; draw(); }
-    if (key_hit(KEY_B))    { app_goto(ST_MENU); return; }
+    if (key_hit(KEY_UP))   { sel = (sel + SLOT_COUNT - 1) % SLOT_COUNT; draw_list(); }
+    if (key_hit(KEY_DOWN)) { sel = (sel + 1) % SLOT_COUNT; draw_list(); }
+    if (key_hit(KEY_B))    { app_goto(art ? ST_DRAWMENU : ST_MENU); return; }
     if (key_hit(KEY_A)) {
-        if (saving) {
+        if (saving && art) {
+            show_msg(save_drawing(sel, draw_canvas(), "drawing")
+                     ? "SAVED" : "SAVE FAILED!");
+        } else if (saving) {
             show_msg(save_doc(sel, editor_doc()) ? "SAVED" : "SAVE FAILED!");
+        } else if (art) {
+            if (g_save.dir[sel].type == SLOT_DRAWING) {
+                load_drawing(sel, draw_canvas());
+                draw_canvas_reloaded();
+                app_goto(ST_DRAW);
+            } else {
+                show_msg(g_save.dir[sel].type == SLOT_DOC ? "that's a doc" : "empty slot");
+            }
         } else {
             if (g_save.dir[sel].type == SLOT_DOC) {
                 load_doc(sel, editor_doc());
                 editor_reloaded();
                 app_goto(ST_EDITOR);
             } else {
-                show_msg("empty slot");
+                show_msg(g_save.dir[sel].type == SLOT_DRAWING ? "that's art" : "empty slot");
             }
         }
     }

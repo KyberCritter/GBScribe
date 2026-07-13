@@ -29,6 +29,11 @@ enum {
     CH_BOX_TT   = 0x16,     // ┬
     CH_BOX_BT   = 0x17,     // ┴
     CH_BOX_X    = 0x18,     // ┼
+    CH_ICON_PENCIL = 0x19,
+    CH_ICON_ERASER = 0x1A,
+    CH_ICON_LINE   = 0x1B,
+    CH_ICON_RECT   = 0x1C,
+    CH_ICON_STAMP  = 0x1D,
 };
 
 #endif

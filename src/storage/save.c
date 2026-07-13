@@ -71,6 +71,31 @@ bool load_doc(int slot, Document *d)
     return true;
 }
 
+bool save_drawing(int slot, const u8 *canvas, const char *name)
+{
+    if (DRAWING_BYTES > SLOT_SIZE)
+        return false;                          // sram fallback can't hold one
+
+    if (!storage_write(slot_off(slot), canvas, DRAWING_BYTES))
+        return false;
+
+    SlotDir *e = &g_save.dir[slot];
+    e->type = SLOT_DRAWING;
+    e->len = DRAWING_BYTES;
+    for (int i = 0; i < SLOT_NAME_LEN; i++)
+        e->name[i] = (name && name[i]) ? name[i] : 0;
+    return save_flush_header();
+}
+
+bool load_drawing(int slot, u8 *canvas)
+{
+    const SlotDir *e = &g_save.dir[slot];
+    if (e->type != SLOT_DRAWING)
+        return false;
+    storage_read(slot_off(slot), canvas, DRAWING_BYTES);
+    return true;
+}
+
 bool save_delete(int slot)
 {
     memset(&g_save.dir[slot], 0, sizeof(SlotDir));
