@@ -6,7 +6,6 @@
 #include "ui/ui.h"
 #include "ui/screen.h"
 #include "ui/editor.h"
-#include "ui/draw.h"
 #include "core/charset.h"
 #include "core/layout.h"
 #include "printer/gbp_packet.h"
@@ -40,12 +39,15 @@ EWRAM_BSS static u8 page_buf[GBP_PAGE_BYTES];
 static u8 pkt_buf[GBP_PACKET_MAX];
 
 static const Document *pdoc;
-static bool src_is_drawing;    // one-shot flag set before entering the scene
-static bool from_drawing;      // latched for this print job
+static const u8 *src_page;     // one-shot: raw page to print instead of the doc
+static AppState src_back;      // where B returns for that page
+static const u8 *job_page;     // latched for this print job
+static AppState back_state;
 
-void print_set_drawing(void)
+void print_set_page(const void *page5760, AppState back)
 {
-    src_is_drawing = true;
+    src_page = page5760;
+    src_back = back;
 }
 
 static void draw_screen(void)
@@ -111,12 +113,13 @@ void print_enter(void)
 {
     obj_hide(&oam_mem[0]);
     pdoc = editor_doc();
-    from_drawing = src_is_drawing;
-    src_is_drawing = false;
+    job_page = src_page;
+    back_state = src_page ? src_back : ST_EDITOR;
+    src_page = NULL;
 
     if (!gbp_link_detect(NULL)) {
         ps = PS_NO_PRINTER;
-    } else if (from_drawing) {
+    } else if (job_page) {
         n_pages = 1;
         cur_page = 0;
         ps = PS_CONFIRM;
@@ -148,8 +151,8 @@ static bool status_error(u8 st)
 
 static void start_page(void)
 {
-    if (from_drawing)
-        memcpy(page_buf, draw_canvas(), GBP_PAGE_BYTES);   // canvas IS a page
+    if (job_page)
+        memcpy(page_buf, job_page, GBP_PAGE_BYTES);        // canvas/QR IS a page
     else
         gbp_compose_text_page(pdoc->text, pdoc->len, &plo,
                               cur_page * GBP_ROWS_PER_PAGE, page_buf);
@@ -165,7 +168,7 @@ void print_frame(int frame)
 
     if (key_hit(KEY_B)) {
         // between packets it is always safe to walk away; printer resets itself
-        app_goto(from_drawing ? ST_DRAWMENU : ST_EDITOR);
+        app_goto(back_state);
         return;
     }
 

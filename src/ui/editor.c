@@ -1,13 +1,16 @@
 #include <string.h>
+#include <stdio.h>
 #include "editor.h"
 #include "screen.h"
 #include "keyboard.h"
+#include "ui.h"
 #include "app.h"
 #include "core/charset.h"
 #include "core/document.h"
 #include "core/layout.h"
 #include "storage/storage.h"
 #include "storage/save.h"
+#include "sound.h"
 
 EWRAM_BSS static Document doc;
 EWRAM_BSS static Layout lo;
@@ -52,6 +55,13 @@ static void render_page(void)
     if (cx > PAGE_W - 1) cx = PAGE_W - 1;
     caret_cx = cx;
     caret_cy = ln - top_line;
+
+    // printed-page indicator in the left gutter (18 lines per page)
+    char buf[8];
+    siprintf(buf, "p.%-2d", ln / 18 + 1);
+    ui_text(0, 11, buf, PB_UI);
+    siprintf(buf, "of%-2d", (lo.count + 17) / 18);
+    ui_text(0, 12, buf, PB_UI);
 }
 
 static void update_caret_sprite(int frame)
@@ -76,8 +86,10 @@ static void after_edit(void)
 
 static void type_code(int code)
 {
-    if (doc_insert(&doc, (char)code))
+    if (doc_insert(&doc, (char)code)) {
+        sfx_click();
         after_edit();
+    }
 }
 
 static void caret_vertical(int dir)

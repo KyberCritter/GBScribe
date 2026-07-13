@@ -5,6 +5,7 @@
 #include "ui/draw.h"
 #include "storage/save.h"
 #include "printer/gbp_link.h"
+#include "sound.h"
 
 static AppState state;
 
@@ -17,6 +18,11 @@ static void default_dispcnt(void)
 void app_goto(AppState s)
 {
     state = s;
+    // music must not run while bit-banging the printer (IRQ timing)
+    if (s == ST_PRINT)
+        sound_pause();
+    else
+        sound_resume();
     switch (s) {
     case ST_DRAW:           draw_enter();          break;
     case ST_DRAWMENU:       drawmenu_enter();      break;
@@ -33,6 +39,7 @@ void app_goto(AppState s)
         case ST_SLOTS_LOAD_ART: slots_enter2(0, 1);    break;
         case ST_SETTINGS:       settings_enter();      break;
         case ST_PRINT:          print_enter();         break;
+        case ST_CREDITS:        credits_enter();       break;
         default: break;
         }
     }
@@ -60,5 +67,6 @@ void app_frame(int frame)
     case ST_PRINT:          print_frame(frame);    break;
     case ST_DRAW:           draw_frame(frame);     break;
     case ST_DRAWMENU:       drawmenu_frame(frame); break;
+    case ST_CREDITS:        credits_frame(frame);  break;
     }
 }

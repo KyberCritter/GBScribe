@@ -14,6 +14,7 @@ typedef enum {
     ST_PRINT,
     ST_DRAW,
     ST_DRAWMENU,
+    ST_CREDITS,
 } AppState;
 
 void app_init(void);
@@ -27,8 +28,10 @@ void slots_enter2(int save_mode, int art_mode); void slots_frame(int frame);
 void settings_enter(void); void settings_frame(int frame);
 void print_enter(void);    void print_frame(int frame);
 void drawmenu_enter(void); void drawmenu_frame(int frame);
+void credits_enter(void);  void credits_frame(int frame);
 
-// print source selection (default: the editor document)
-void print_set_drawing(void);
+// Print a raw 5,760-byte page (canvas, QR) instead of the document; `back` is
+// where B returns from the print scene. One-shot: set right before ST_PRINT.
+void print_set_page(const void *page5760, AppState back);
 
 #endif
