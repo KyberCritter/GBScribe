@@ -31,6 +31,7 @@ static int ps;
 static int cur_page, n_pages;
 static int data_idx;
 static int wait_frames;
+static int bad_polls;       // consecutive failed INQUIRYs during PS_WAIT
 static bool saw_printing;
 static bool link_lost;      // keepalive vanished mid-job (vs. printer status error)
 static u8 last_status;
@@ -83,8 +84,8 @@ static void draw_screen(void)
         if (link_lost) {
             ui_text(6, 7,  "printer stopped", PB_UI);
             ui_text(6, 8,  "responding.", PB_UI);
-            ui_text(6, 10, "try Printer: normal", PB_UI);
-            ui_text(6, 11, "in Settings", PB_UI);
+            ui_text(6, 10, "check the cable +", PB_UI);
+            ui_text(6, 11, "printer batteries", PB_UI);
         } else {
             ui_text(6, 8, "printer error:", PB_UI);
             if (last_status & GBP_STATUS_PAPER_JAM)    ui_text(8, 9, "paper jam", PB_UI);
@@ -189,7 +190,7 @@ void print_frame(int frame)
 
     case PS_INIT: {
         int n = gbp_packet_build(GBP_CMD_INIT, 0, 0, pkt_buf);
-        gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
+        gbp_link_send(pkt_buf, n, GBP_HALF_NORMAL, &ka, &st);
         if (ka != GBP_KEEPALIVE) { link_lost = true; last_status = st; ps = PS_ERROR; draw_screen(); break; }
         wait_frames = 12;              // ~200ms settle after INIT
         ps = PS_DATA;
@@ -200,7 +201,7 @@ void print_frame(int frame)
     case PS_DATA: {
         int n = gbp_packet_build(GBP_CMD_DATA, page_buf + data_idx * GBP_DATA_PER_PKT,
                                  GBP_DATA_PER_PKT, pkt_buf);
-        gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
+        gbp_link_send(pkt_buf, n, GBP_HALF_NORMAL, &ka, &st);
         if (ka != GBP_KEEPALIVE || status_error(st)) {
             link_lost = (ka != GBP_KEEPALIVE);
             last_status = st; ps = PS_ERROR; draw_screen(); break;
@@ -213,7 +214,7 @@ void print_frame(int frame)
 
     case PS_ARM: {
         int n = gbp_packet_build(GBP_CMD_DATA, 0, 0, pkt_buf);
-        gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
+        gbp_link_send(pkt_buf, n, GBP_HALF_NORMAL, &ka, &st);
         if (ka != GBP_KEEPALIVE) { link_lost = true; last_status = st; ps = PS_ERROR; draw_screen(); break; }
         ps = PS_PRINT;
         break;
@@ -223,13 +224,14 @@ void print_frame(int frame)
         u8 args[4];
         gbp_print_args(page_margins(), 0x40, args);
         int n = gbp_packet_build(GBP_CMD_PRINT, args, 4, pkt_buf);
-        gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
+        gbp_link_send(pkt_buf, n, GBP_HALF_NORMAL, &ka, &st);
         if (ka != GBP_KEEPALIVE || status_error(st)) {
             link_lost = (ka != GBP_KEEPALIVE);
             last_status = st; ps = PS_ERROR; draw_screen(); break;
         }
         saw_printing = false;
         wait_frames = 0;
+        bad_polls = 0;
         ps = PS_WAIT;
         draw_progress();
         break;
@@ -241,16 +243,28 @@ void print_frame(int frame)
             break;
         {
             int n = gbp_packet_build(GBP_CMD_INQUIRY, 0, 0, pkt_buf);
-            gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
-            last_status = st;
-            if (ka != GBP_KEEPALIVE || status_error(st)) {
-                link_lost = (ka != GBP_KEEPALIVE);
-                ps = PS_ERROR; draw_screen(); break;
+            gbp_link_send(pkt_buf, n, GBP_HALF_NORMAL, &ka, &st);
+            bool finished = false;
+            if (ka != GBP_KEEPALIVE) {
+                // replies can garble while the motor runs — tolerate ~2s of
+                // silence; after seeing it print, silence means the job is done
+                if (++bad_polls < 40)
+                    break;
+                if (saw_printing) {
+                    finished = true;
+                } else {
+                    link_lost = true; last_status = st;
+                    ps = PS_ERROR; draw_screen(); break;
+                }
+            } else {
+                bad_polls = 0;
+                last_status = st;
+                if (status_error(st)) { ps = PS_ERROR; draw_screen(); break; }
+                if (st & GBP_STATUS_PRINTING)
+                    saw_printing = true;
+                finished = saw_printing ? !(st & GBP_STATUS_PRINTING)
+                                        : (wait_frames > 60 * 30);
             }
-            if (st & GBP_STATUS_PRINTING)
-                saw_printing = true;
-            bool finished = saw_printing ? !(st & GBP_STATUS_PRINTING)
-                                         : (wait_frames > 60 * 30);
             draw_progress();
             if (finished) {
                 if (++cur_page < n_pages)

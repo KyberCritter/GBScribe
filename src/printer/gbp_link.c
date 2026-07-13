@@ -76,7 +76,3 @@ bool gbp_link_detect(u8 *status_out)
     return ka == GBP_KEEPALIVE;
 }
 
-u16 gbp_half_ticks(void)
-{
-    return g_save.print_speed ? GBP_HALF_NORMAL : GBP_HALF_FAST;
-}

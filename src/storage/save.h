@@ -28,7 +28,7 @@ typedef struct {
     u32 magic;
     u16 version;
     u8  wrap_mode;            // 0 = post-word, 1 = mid-word
-    u8  print_speed;          // 0 = fast (16kHz), 1 = normal (8kHz)
+    u8  print_speed;          // unused (always 8192 Hz now); byte kept for layout
     u8  draw_pal;             // drawing display palette (M6)
     u8  rsvd[7];
     SlotDir dir[SLOT_COUNT];

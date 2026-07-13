@@ -7,7 +7,7 @@
 #include "storage/save.h"
 
 static int sel;
-#define N_OPTS 2
+#define N_OPTS 1
 
 static void draw(void)
 {
@@ -19,9 +19,6 @@ static void draw(void)
 
     ui_text(5, 7, "Wrap:", PB_UI);
     ui_text(13, 7, g_save.wrap_mode ? "\x03 mid-word \x04" : "\x03 word     \x04", PB_UI);
-
-    ui_text(5, 9, "Printer:", PB_UI);
-    ui_text(14, 9, g_save.print_speed ? "\x03 normal \x04" : "\x03 fast   \x04", PB_UI);
 
     for (int i = 0; i < N_OPTS; i++)
         map_put(text_map(), 4, 7 + i * 2, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
@@ -43,7 +40,6 @@ void settings_frame(int frame)
     if (key_hit(KEY_DOWN)) { sel = (sel + 1) % N_OPTS; draw(); }
     if (key_hit(KEY_LEFT) || key_hit(KEY_RIGHT)) {
         if (sel == 0) g_save.wrap_mode ^= 1;
-        else          g_save.print_speed ^= 1;
         draw();
     }
     if (key_hit(KEY_B) || key_hit(KEY_START)) {
