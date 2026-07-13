@@ -17,16 +17,18 @@ void gbp_link_init(void)
     // general purpose mode; SC+SO outputs, SI+SD inputs; SC idles HIGH, SO low
     REG_RCNT = R_GPIO | R_SC_OUT | R_SO_OUT | R_SC;
 
-    // TM0: free-running, prescaler 1 (59.6ns/tick), used for polled delays
-    REG_TM0CNT_H = 0;
-    REG_TM0CNT_L = 0;
-    REG_TM0CNT_H = TM_ENABLE;
+    // TM2: free-running, prescaler 1 (59.6ns/tick), used for polled delays.
+    // TM0/TM1 belong to Maxmod's audio FIFO — touching them corrupts audio AND
+    // our bit timing (that was the "constant crackle + status 00" hardware bug).
+    REG_TM2CNT_H = 0;
+    REG_TM2CNT_L = 0;
+    REG_TM2CNT_H = TM_ENABLE;
 }
 
 static inline void delay_ticks(u16 t)
 {
-    u16 start = REG_TM0CNT_L;
-    while ((u16)(REG_TM0CNT_L - start) < t) ;
+    u16 start = REG_TM2CNT_L;
+    while ((u16)(REG_TM2CNT_L - start) < t) ;
 }
 
 u8 gbp_link_xfer(u8 send, u16 half_ticks)

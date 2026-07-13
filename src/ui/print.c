@@ -32,6 +32,7 @@ static int cur_page, n_pages;
 static int data_idx;
 static int wait_frames;
 static bool saw_printing;
+static bool link_lost;      // keepalive vanished mid-job (vs. printer status error)
 static u8 last_status;
 
 EWRAM_BSS static Layout plo;
@@ -79,13 +80,20 @@ static void draw_screen(void)
         ui_text(6, 13, "B: back", PB_UI);
         break;
     case PS_ERROR:
-        ui_text(6, 8, "printer error:", PB_UI);
-        if (last_status & GBP_STATUS_PAPER_JAM)    ui_text(8, 9, "paper jam", PB_UI);
-        else if (last_status & GBP_STATUS_LOW_BATTERY) ui_text(8, 9, "low battery", PB_UI);
-        else if (last_status & GBP_STATUS_CHECKSUM_ERR) ui_text(8, 9, "checksum", PB_UI);
-        else {
-            siprintf(line, "status %02X", last_status);
-            ui_text(8, 9, line, PB_UI);
+        if (link_lost) {
+            ui_text(6, 7,  "printer stopped", PB_UI);
+            ui_text(6, 8,  "responding.", PB_UI);
+            ui_text(6, 10, "try Printer: normal", PB_UI);
+            ui_text(6, 11, "in Settings", PB_UI);
+        } else {
+            ui_text(6, 8, "printer error:", PB_UI);
+            if (last_status & GBP_STATUS_PAPER_JAM)    ui_text(8, 9, "paper jam", PB_UI);
+            else if (last_status & GBP_STATUS_LOW_BATTERY) ui_text(8, 9, "low battery", PB_UI);
+            else if (last_status & GBP_STATUS_CHECKSUM_ERR) ui_text(8, 9, "bad checksum", PB_UI);
+            else {
+                siprintf(line, "status %02X", last_status);
+                ui_text(8, 9, line, PB_UI);
+            }
         }
         ui_text(6, 13, "B: back", PB_UI);
         break;
@@ -157,6 +165,7 @@ static void start_page(void)
         gbp_compose_text_page(pdoc->text, pdoc->len, &plo,
                               cur_page * GBP_ROWS_PER_PAGE, page_buf);
     data_idx = 0;
+    link_lost = false;
     ps = PS_INIT;
     draw_screen();
 }
@@ -181,7 +190,7 @@ void print_frame(int frame)
     case PS_INIT: {
         int n = gbp_packet_build(GBP_CMD_INIT, 0, 0, pkt_buf);
         gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
-        if (ka != GBP_KEEPALIVE) { last_status = st; ps = PS_ERROR; draw_screen(); break; }
+        if (ka != GBP_KEEPALIVE) { link_lost = true; last_status = st; ps = PS_ERROR; draw_screen(); break; }
         wait_frames = 12;              // ~200ms settle after INIT
         ps = PS_DATA;
         while (wait_frames--) VBlankIntrWait();
@@ -193,6 +202,7 @@ void print_frame(int frame)
                                  GBP_DATA_PER_PKT, pkt_buf);
         gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
         if (ka != GBP_KEEPALIVE || status_error(st)) {
+            link_lost = (ka != GBP_KEEPALIVE);
             last_status = st; ps = PS_ERROR; draw_screen(); break;
         }
         if (++data_idx >= GBP_PKTS_PER_PAGE)
@@ -204,7 +214,7 @@ void print_frame(int frame)
     case PS_ARM: {
         int n = gbp_packet_build(GBP_CMD_DATA, 0, 0, pkt_buf);
         gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
-        if (ka != GBP_KEEPALIVE) { last_status = st; ps = PS_ERROR; draw_screen(); break; }
+        if (ka != GBP_KEEPALIVE) { link_lost = true; last_status = st; ps = PS_ERROR; draw_screen(); break; }
         ps = PS_PRINT;
         break;
     }
@@ -215,6 +225,7 @@ void print_frame(int frame)
         int n = gbp_packet_build(GBP_CMD_PRINT, args, 4, pkt_buf);
         gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
         if (ka != GBP_KEEPALIVE || status_error(st)) {
+            link_lost = (ka != GBP_KEEPALIVE);
             last_status = st; ps = PS_ERROR; draw_screen(); break;
         }
         saw_printing = false;
@@ -232,7 +243,10 @@ void print_frame(int frame)
             int n = gbp_packet_build(GBP_CMD_INQUIRY, 0, 0, pkt_buf);
             gbp_link_send(pkt_buf, n, gbp_half_ticks(), &ka, &st);
             last_status = st;
-            if (ka != GBP_KEEPALIVE || status_error(st)) { ps = PS_ERROR; draw_screen(); break; }
+            if (ka != GBP_KEEPALIVE || status_error(st)) {
+                link_lost = (ka != GBP_KEEPALIVE);
+                ps = PS_ERROR; draw_screen(); break;
+            }
             if (st & GBP_STATUS_PRINTING)
                 saw_printing = true;
             bool finished = saw_printing ? !(st & GBP_STATUS_PRINTING)

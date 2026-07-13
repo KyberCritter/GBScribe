@@ -14,22 +14,22 @@ static const char *items[] = {
     "Drawing mode",
     "Settings",
     "About",
+    "Main menu",
 };
-#define N_ITEMS 8
+#define N_ITEMS 9
 
 static int sel;
 
 static void draw(void)
 {
-    // frame spans cols 6..24, rows 1..19; 8 items at rows 4..18 stay inside,
+    // frame fills the screen height; 9 items at rows 2..18 stay inside,
     // and the longest item "Print document" (14) ends at col 21.
     ui_cls();
-    ui_fill(6, 1, 19, 19, 3);
-    ui_frame(6, 1, 19, 19);
-    ui_text(11, 2, "- MENU -", PB_UI);
+    ui_fill(6, 0, 19, 20, 3);
+    ui_frame(6, 0, 19, 20);
     for (int i = 0; i < N_ITEMS; i++) {
-        ui_text(8, 4 + i * 2, items[i], PB_UI);
-        map_put(text_map(), 7, 4 + i * 2, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
+        ui_text(8, 2 + i * 2, items[i], PB_UI);
+        map_put(text_map(), 7, 2 + i * 2, i == sel ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
     }
 }
 
@@ -56,6 +56,7 @@ void menu_frame(int frame)
         case 5: app_goto(ST_DRAW); break;
         case 6: app_goto(ST_SETTINGS); break;
         case 7: app_goto(ST_CREDITS); break;
+        case 8: app_goto(ST_TITLE); break;
         }
     }
 }

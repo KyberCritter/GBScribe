@@ -1,12 +1,10 @@
-// FLASH1M (128KB) backend: banked 2x64KB, 4KB sectors, byte program.
-// Protocol per GBATEK; works on mGBA's FLASH1M emulation and the EZ-Flash
-// Omega DE's FRAM-backed flash emulation.
-#ifndef STORAGE_SRAM
-
+// Flash backend: banked 128K (or single-bank 64K), 4KB sectors, byte program.
+// Protocol per GBATEK. Presence is detected at runtime via the software-ID
+// command — carts that expose plain SRAM never answer it.
 #include <string.h>
 #include "storage.h"
 
-// mGBA / real carts detect the save type by scanning the ROM for this string.
+// mGBA / flash carts detect the preferred save type by scanning the ROM.
 const char flash_save_id[] __attribute__((used)) = "FLASH1M_V103";
 
 #define FLASH_BASE  ((vu8 *)0x0E000000)
@@ -14,6 +12,7 @@ const char flash_save_id[] __attribute__((used)) = "FLASH1M_V103";
 #define BANK_SIZE   0x10000
 
 static int cur_bank = -1;
+static u32 flash_size;
 
 static void flash_cmd(u8 c)
 {
@@ -22,25 +21,56 @@ static void flash_cmd(u8 c)
     FLASH_BASE[0x5555] = c;
 }
 
+u32 flash_probe_size(void)
+{
+    volatile const char *keep = flash_save_id;   // defeat --gc-sections
+    (void)*keep;
+
+    // remember bytes our command writes would clobber if this is plain SRAM
+    u8 s1 = FLASH_BASE[0x5555], s2 = FLASH_BASE[0x2AAA];
+    u8 n0 = FLASH_BASE[0], n1 = FLASH_BASE[1];
+
+    flash_cmd(0x90);                     // enter software ID mode
+    u8 man = FLASH_BASE[0], dev = FLASH_BASE[1];
+    flash_cmd(0xF0);                     // exit ID mode
+
+    if (man == n0 && dev == n1) {
+        // nothing answered: restore possible SRAM bytes and report no flash
+        FLASH_BASE[0x5555] = s1;
+        FLASH_BASE[0x2AAA] = s2;
+        return 0;
+    }
+
+    switch ((man << 8) | dev) {
+    case 0x6213:                         // Sanyo 128K
+    case 0xC209:                         // Macronix 128K
+        flash_size = 128 * 1024;
+        break;
+    case 0xBFD4:                         // SST 64K
+    case 0x1F3D:                         // Atmel 64K
+    case 0x321B:                         // Panasonic 64K
+    case 0xC21C:                         // Macronix 64K
+        flash_size = 64 * 1024;
+        break;
+    default:                             // unknown chip: don't trust the protocol
+        FLASH_BASE[0x5555] = s1;
+        FLASH_BASE[0x2AAA] = s2;
+        return 0;
+    }
+    cur_bank = -1;
+    return flash_size;
+}
+
 static void flash_bank(int bank)
 {
-    if (bank == cur_bank)
+    if (flash_size <= BANK_SIZE || bank == cur_bank)
         return;
     flash_cmd(0xB0);
     FLASH_BASE[0] = (u8)bank;
     cur_bank = bank;
 }
 
-void storage_init(void)
-{
-    // touch the ID string so -Wl,--gc-sections cannot drop it
-    volatile const char *keep = flash_save_id;
-    (void)*keep;
-    cur_bank = -1;
-    flash_bank(0);
-}
-
-void storage_read(u32 off, void *dst, u32 len)
+void flash_read(u32 off, void *dst, u32 len)
 {
     u8 *d = dst;
     while (len) {
@@ -62,7 +92,6 @@ static bool wait_byte(vu8 *p, u8 want)
     return false;
 }
 
-// erase the 4KB sector at byte offset `sec_off` within the current bank
 static bool erase_sector(u32 in_bank)
 {
     flash_cmd(0x80);
@@ -81,7 +110,7 @@ static bool program_byte(u32 in_bank, u8 b)
 
 EWRAM_BSS static u8 sector_buf[SECTOR_SIZE];
 
-bool storage_write(u32 off, const void *src, u32 len)
+bool flash_write(u32 off, const void *src, u32 len)
 {
     const u8 *s = src;
     while (len) {
@@ -90,7 +119,7 @@ bool storage_write(u32 off, const void *src, u32 len)
         u32 n = SECTOR_SIZE - in_sec;
         if (n > len) n = len;
 
-        storage_read(sec_base, sector_buf, SECTOR_SIZE);
+        flash_read(sec_base, sector_buf, SECTOR_SIZE);
         if (memcmp(sector_buf + in_sec, s, n) != 0) {
             memcpy(sector_buf + in_sec, s, n);
 
@@ -106,5 +135,3 @@ bool storage_write(u32 off, const void *src, u32 len)
     }
     return true;
 }
-
-#endif // !STORAGE_SRAM
