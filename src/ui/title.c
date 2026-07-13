@@ -27,13 +27,14 @@ void title_enter(void)
 
     ui_fill(6, 5, 18, 5, 3);
     ui_frame(6, 5, 18, 5);
-    ui_text(11, 7, "GBScribe", PB_UI);
+    ui_logo(9, 6);
+    ui_text(12, 7, "GBScribe", PB_UI);
 
     // screen is 30 columns: center = (30 - len) / 2
     ui_text(5, 12, "write \x0C draw \x0C print", PB_UI);   // 20 chars
     ui_text(9, 15, "PRESS START", PB_UI);                  // 11 chars
 
-    ui_text(25, 19, "v1.2", PB_UI);
+    ui_text(25, 19, "v1.3", PB_UI);
 
     char line[24];
     siprintf(line, "save: %s", storage_name());
