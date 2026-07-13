@@ -1,9 +1,13 @@
 # GBScribe
 
+<img src="assets/logo.png" alt="GBScribe logo: a Game Boy with a quill and ink pot" width="96" align="right">
+
 A homebrew word processor and pixel-art tool for Game Boy hardware that prints to a real
 Game Boy Printer.
 
 By Scott Ratchford — [scottratchford.com](https://scottratchford.com)
+
+Licensed under the **MIT License** — see [LICENSE.md](LICENSE.md).
 
 > Design rationale, protocol details, and timing constraints live in **[PLAN.md](PLAN.md)**;
 > implementation status and handoff notes live in **[STATUS.md](STATUS.md)**.
@@ -32,11 +36,10 @@ GBA ── link port (GPIO mode) ── GBC/GB-Pocket link cable ── Game Boy
   characters (~44 printed pages)
 - Pixel-art drawing mode: 160×144 canvas (one printed page), pencil/eraser/line/rect,
   stamp library, 4 shades with selectable display palettes
-- 8 save slots on cart flash (FLASH1M), each holding a document or a drawing
-- Prints documents, drawings, and a QR code; live printer detection on the title screen
-  (a bare INQUIRY round trip — burns no paper); 8192 Hz or ~16 kHz link speed
-- Original chiptune theme + UI sounds (Maxmod); music pauses during printing to
-  protect link timing
+- 8 save slots, each holding a document or a drawing; the save backend
+  (FLASH1M or plain SRAM/FRAM, as on the EZ-Flash Omega) is detected at runtime
+- Prints documents, drawings, and a QR code with the URL printed beneath it; live
+  printer detection on the title screen (a bare INQUIRY round trip — burns no paper)
 
 ## Controls
 
@@ -74,9 +77,9 @@ src/        application source
             stay free of GBA headers, so they compile for the host harness too
   core/     document model, layout/wrap engine, character set
   ui/       title, menus, editor, drawing, settings, credits/about
-  storage/  save slots (FLASH1M, with an SRAM fallback build flag)
-  gfx/      generated sources (font, QR) — regenerate via tools/, don't hand-edit
-assets/     generated music/SFX sources
+  storage/  save slots (runtime-detected FLASH1M or SRAM backend)
+  gfx/      generated sources (font, QR, logo) — regenerate via tools/, don't hand-edit
+assets/     generated music/SFX sources + logo.png
 tests/host/ host-side unit tests and the printer decode harness
 tools/      build scripts: font, QR, music generation; mGBA capture; deploy
 LICENSES/   dependency license texts
@@ -84,6 +87,9 @@ LICENSES/   dependency license texts
 ```
 
 ## Legal
+
+GBScribe is free software, licensed under the MIT License — see
+[LICENSE.md](LICENSE.md).
 
 Not affiliated with, endorsed by, or sponsored by Nintendo. Game Boy, Game Boy Color, Game
 Boy Advance and Game Boy Printer are trademarks of Nintendo. "QR Code" is a registered
