@@ -69,8 +69,8 @@ def put_px(px_, py, shade):
     if shade & 1: page[off]     |= bit
     if shade & 2: page[off + 1] |= bit
 
-# logo: 16x16 top center; values 1(outline/ink)->black, 2(body)->light, 3(screen)->white
-LOGO_SHADE = {0: 0, 1: 3, 2: 1, 3: 0}
+# logo: 16x16 top center; sketch shades ARE print shades (0=white .. 3=black)
+LOGO_SHADE = {0: 0, 1: 1, 2: 2, 3: 3}
 lg = logo_grid()
 lx, ly = (PAGE_W - 16) // 2, 2
 for y in range(16):

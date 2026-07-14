@@ -32,11 +32,11 @@ void ui_fill(int x, int y, int w, int h, int solid_v)
 
 void ui_logo(int x, int y)
 {
-    // load-on-use is cheap (4 tiles); palette: outline/quill light, body
-    // gray, screen classic GB green
+    // load-on-use is cheap (4 tiles); sketch shades on the dark UI: body
+    // gray, details near-white, screen/quill/ink classic GB green
     memcpy32(&tile_mem[0][LOGO_TILE_BASE], logo_tiles, 4 * 8);
-    pal_bg_mem[16 * PB_LOGO + 1] = RGB15(29, 29, 31);
-    pal_bg_mem[16 * PB_LOGO + 2] = RGB15(14, 15, 19);
+    pal_bg_mem[16 * PB_LOGO + 1] = RGB15(14, 15, 19);
+    pal_bg_mem[16 * PB_LOGO + 2] = RGB15(29, 29, 31);
     pal_bg_mem[16 * PB_LOGO + 3] = RGB15(19, 23, 2);
     for (int ty = 0; ty < 2; ty++)
         for (int tx = 0; tx < 2; tx++)
