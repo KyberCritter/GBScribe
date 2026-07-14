@@ -21,20 +21,20 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 'X' nib in the screen), T-capped ink pot right ('/' cap, 'X' body).
 ART = [
     "................",
-    "////////...OOOOO",
+    "////////...OOOO.",
     "/OOOOOO/..OOOO..",
-    "/OOOOOO/.OOOO...",
-    "/OOOOOXOOO......",
-    "/OOOOXX/........",
+    "/OOOOOO/.OOO....",
+    "/OOOOXXOOO......",
+    "/OOOOOO/........",
     "////////........",
     "////////........",
     "//X/////........",
     "/XXX//X/.//////.",
     "//X//X//..////..",
-    "////X/X/.XXXXXX.",
-    "////X/X/.XXXXXX.",
+    "////////.//////.",
     "////////.XXXXXX.",
-    "////////........",
+    "//X//X//.XXXXXX.",
+    "////////.XXXXXX.",
     "................",
 ]
 VAL = {'.': 0, '/': 1, 'X': 2, 'O': 3}
