@@ -22,7 +22,7 @@ OBJS     := $(patsubst %.c,$(BUILD)/%.o,$(CFILES)) $(BUILD)/soundbank.o
 
 ARCH     := -mthumb -mthumb-interwork
 CFLAGS   := $(ARCH) -mcpu=arm7tdmi -mtune=arm7tdmi -O2 -Wall -Wextra \
-            -ffunction-sections -fdata-sections \
+            -ffunction-sections -fdata-sections -MMD -MP \
             -I$(DEVKITPRO)/libtonc/include -I$(DEVKITPRO)/libgba/include \
             -Isrc -I$(BUILD)
 LDFLAGS  := $(ARCH) -specs=gba.specs -Wl,-Map,$(BUILD)/$(TARGET).map -Wl,--gc-sections
@@ -55,6 +55,9 @@ $(BUILD)/soundbank.o: $(BUILD)/soundbank.bin
 	$(CC) $(ARCH) -x assembler-with-cpp -c $(BUILD)/soundbank.s -o $@
 
 $(BUILD)/src/sound.o: $(BUILD)/soundbank.h
+
+# header dependencies emitted by -MMD (stale .o after a .h edit otherwise)
+-include $(OBJS:.o=.d)
 
 clean:
 	rm -rf $(BUILD) $(TARGET).gba

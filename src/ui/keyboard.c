@@ -9,15 +9,17 @@
 #define KW(cx, cy, ww, act, lab) { cx, cy, ww, act, lab }
 
 // All layers share the same grid: key columns at x = 2,4,...,20 on rows
-// 14-17 (no QWERTY stagger — up/down moves straight), SPACE/ENTER stacked
-// on the right side, and only the four layer switches on the bottom row.
+// 14-17 (no QWERTY stagger — up/down moves straight), the right-side column
+// stacked on rows 15-17, and only the four layer switches on the bottom row.
+// Letter layers add SHIFT above SPACE; the other layers hide it.
 #define COMMON_KEYS \
-    KW(24, 15, 5, ' ',            "SPACE"), \
+    KW(24, 16, 5, ' ',            "SPACE"), \
     KW(24, 17, 5, KA_ENTER,       "ENTER"), \
     KW( 2, 19, 3, KA_LAYER_LOWER, "abc"), \
     KW( 6, 19, 3, KA_LAYER_UPPER, "ABC"), \
     KW(10, 19, 3, KA_LAYER_SYM,   "!@#"), \
     KW(14, 19, 3, KA_LAYER_SHAPE, "\x09\x06\x04")
+#define SHIFT_KEY KW(24, 15, 5, KA_SHIFT, "SHIFT")
 
 static const Key kb_lower[] = {
     K( 2,15,'q'), K( 4,15,'w'), K( 6,15,'e'), K( 8,15,'r'), K(10,15,'t'),
@@ -26,6 +28,7 @@ static const Key kb_lower[] = {
     K(12,16,'h'), K(14,16,'j'), K(16,16,'k'), K(18,16,'l'),
     K( 2,17,'z'), K( 4,17,'x'), K( 6,17,'c'), K( 8,17,'v'), K(10,17,'b'),
     K(12,17,'n'), K(14,17,'m'), K(16,17,','), K(18,17,'.'),
+    SHIFT_KEY,
     COMMON_KEYS,
 };
 
@@ -36,6 +39,7 @@ static const Key kb_upper[] = {
     K(12,16,'H'), K(14,16,'J'), K(16,16,'K'), K(18,16,'L'),
     K( 2,17,'Z'), K( 4,17,'X'), K( 6,17,'C'), K( 8,17,'V'), K(10,17,'B'),
     K(12,17,'N'), K(14,17,'M'), K(16,17,','), K(18,17,'.'),
+    SHIFT_KEY,
     COMMON_KEYS,
 };
 

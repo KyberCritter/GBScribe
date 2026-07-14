@@ -16,6 +16,7 @@ typedef enum {
     ST_DRAW,
     ST_DRAWMENU,
     ST_CREDITS,
+    ST_DEBUG,            // secret snippet-print menu (Konami code on title)
 } AppState;
 
 void app_init(void);
@@ -30,12 +31,14 @@ void settings_enter(void); void settings_frame(int frame);
 void print_enter(void);    void print_frame(int frame);
 void drawmenu_enter(void); void drawmenu_frame(int frame);
 void credits_enter(void);  void credits_frame(int frame);
+void debug_enter(void);    void debug_frame(int frame);
 // Where B exits the credits scene to (persists across the QR print detour).
 void credits_set_back(AppState s);
 
-// Print a raw 5,760-byte page (canvas, QR) instead of the document; `back` is
-// where B returns from the print scene. One-shot: set right before ST_PRINT.
-void print_set_page(const void *page5760, AppState back);
+// Print a raw 2bpp image (canvas, QR, test page) instead of the document:
+// `tile_rows` tile rows of 320 bytes each (160px wide). `back` is where B
+// returns from the print scene. One-shot: set right before ST_PRINT.
+void print_set_page(const void *page, int tile_rows, AppState back);
 
 // Print arbitrary text (e.g. the manual) instead of the editor document.
 // One-shot, same contract as print_set_page.

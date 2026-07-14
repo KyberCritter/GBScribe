@@ -21,10 +21,4 @@ void gbp_render_text_row(const char *chars, int n, uint8_t *out);
 void gbp_compose_text_page(const char *text, int len, const Layout *lo,
                            int first_line, uint8_t *page);
 
-// Number of printed pages for a laid-out document.
-static inline int gbp_page_count(const Layout *lo)
-{
-    return (lo->count + GBP_ROWS_PER_PAGE - 1) / GBP_ROWS_PER_PAGE;
-}
-
 #endif

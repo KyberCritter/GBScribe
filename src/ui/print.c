@@ -28,7 +28,9 @@ enum {
 };
 
 static int ps;
-static int cur_page, n_pages;
+static int cur_row;         // first layout line of the chunk being sent
+static int total_rows;      // real content lines in the whole job
+static int chunk_pkts;      // DATA packets in the current chunk (rows/2)
 static int data_idx;
 static int wait_frames;
 static int bad_polls;       // consecutive failed INQUIRYs during PS_WAIT
@@ -41,18 +43,21 @@ EWRAM_BSS static u8 page_buf[GBP_PAGE_BYTES];
 static u8 pkt_buf[GBP_PACKET_MAX];
 
 static const Document *pdoc;
-static const u8 *src_page;     // one-shot: raw page to print instead of the doc
+static const u8 *src_page;     // one-shot: raw image to print instead of the doc
+static int src_rows;           // its height in tile rows
 static const char *src_text;   // one-shot: text to print instead of the doc
 static int src_len;
 static AppState src_back;      // where B returns for that page/text
 static const u8 *job_page;     // latched for this print job
+static int job_rows;
 static const char *job_text;   // latched text source (manual or editor doc)
 static int job_len;
 static AppState back_state;
 
-void print_set_page(const void *page5760, AppState back)
+void print_set_page(const void *page, int tile_rows, AppState back)
 {
-    src_page = page5760;
+    src_page = page;
+    src_rows = tile_rows;
     src_back = back;
 }
 
@@ -83,7 +88,7 @@ static void draw_screen(void)
         ui_text(6, 13, "B: Back", PB_UI);
         break;
     case PS_CONFIRM:
-        siprintf(line, "%d page%s of paper", n_pages, n_pages == 1 ? "" : "s");
+        siprintf(line, "%d line%s of paper", total_rows, total_rows == 1 ? "" : "s");
         ui_text(6, 8, line, PB_UI);
         ui_text(6, 11, "A: Print  B: Back", PB_UI);
         break;
@@ -110,22 +115,32 @@ static void draw_screen(void)
         ui_text(6, 13, "B: Back", PB_UI);
         break;
     default:
-        siprintf(line, "Page %d/%d", cur_page + 1, n_pages);
-        ui_text(6, 8, line, PB_UI);
         ui_text(6, 13, "B: Cancel", PB_UI);
         break;
     }
 }
 
+// Lines of the whole job sent to the printer so far (never past the content).
+static int rows_sent(void)
+{
+    int sent = cur_row + ((ps == PS_WAIT) ? chunk_pkts : data_idx) * 2;
+    return sent < total_rows ? sent : total_rows;
+}
+
 static void draw_progress(void)
 {
-    // 18-cell bar: 2 cells per DATA packet sent
-    for (int i = 0; i < 18; i++) {
-        int filled = (ps == PS_WAIT) ? 18 : data_idx * 2;
+    char line[32];
+    int sent = rows_sent();
+    siprintf(line, "Line %d/%d   ", sent, total_rows);
+    ui_text(6, 8, line, PB_UI);
+    // 18-cell bar spanning the whole job, by lines sent
+    int filled = total_rows ? (sent * 18) / total_rows : 18;
+    for (int i = 0; i < 18; i++)
         map_put(chrome_map(), 6 + i, 10, SOLID(i < filled ? 4 : 5), PB_SOLID);
-    }
     if (ps == PS_WAIT) {
         ui_text(6, 11, saw_printing ? "Printing...  " : "Waiting...   ", PB_UI);
+    } else {
+        ui_text(6, 11, "Sending...   ", PB_UI);
     }
 }
 
@@ -134,6 +149,7 @@ void print_enter(void)
     obj_hide(&oam_mem[0]);
     pdoc = editor_doc();
     job_page = src_page;
+    job_rows = src_rows;
     back_state = (src_page || src_text) ? src_back : ST_EDITOR;
     if (src_text) {
         job_text = src_text;
@@ -148,27 +164,27 @@ void print_enter(void)
     if (!gbp_link_detect(NULL)) {
         ps = PS_NO_PRINTER;
     } else if (job_page) {
-        n_pages = 1;
-        cur_page = 0;
+        total_rows = job_rows;
+        cur_row = 0;
         ps = PS_CONFIRM;
     } else if (job_len == 0) {
         ps = PS_EMPTY_DOC;
     } else {
         layout_reflow(&plo, job_text, job_len, GBP_TILES_PER_ROW,
                       g_save.wrap_mode ? WRAP_MID_WORD : WRAP_POST_WORD);
-        n_pages = gbp_page_count(&plo);
-        cur_page = 0;
+        total_rows = plo.count;
+        cur_row = 0;
         ps = PS_CONFIRM;
     }
     draw_screen();
 }
 
-static u8 page_margins(void)
+static u8 chunk_margins(void)
 {
-    if (n_pages == 1) return 0x13;              // feed before + after
-    if (cur_page == 0) return 0x10;             // first: feed before only
-    if (cur_page == n_pages - 1) return 0x03;   // last: feed after
-    return 0x00;                                // middle: continuous
+    bool first = (cur_row == 0);
+    bool last  = (cur_row + chunk_pkts * 2 >= total_rows);
+    // one continuous document: feed before the first strip, after the last
+    return (u8)((first ? 0x10 : 0x00) | (last ? 0x03 : 0x00));
 }
 
 static bool status_error(u8 st)
@@ -177,17 +193,27 @@ static bool status_error(u8 st)
                   GBP_STATUS_PAPER_JAM | GBP_STATUS_OTHER_ERR)) != 0;
 }
 
-static void start_page(void)
+// Compose and start the next chunk: up to one printer buffer (18 rows) of
+// content, trimmed to what's left and rounded up to the 2-row band the
+// printer's head advances in. No blank page padding at the end.
+static void start_chunk(void)
 {
-    if (job_page)
-        memcpy(page_buf, job_page, GBP_PAGE_BYTES);        // canvas/QR IS a page
-    else
-        gbp_compose_text_page(job_text, job_len, &plo,
-                              cur_page * GBP_ROWS_PER_PAGE, page_buf);
+    int rows = total_rows - cur_row;
+    if (rows > GBP_ROWS_PER_PAGE)
+        rows = GBP_ROWS_PER_PAGE;
+    chunk_pkts = (rows + 1) / 2;               // 2 rows per DATA packet
+    if (job_page) {
+        memset(page_buf, 0, GBP_PAGE_BYTES);   // blank-pad an odd final row
+        memcpy(page_buf, job_page + cur_row * GBP_ROW_BYTES,
+               rows * GBP_ROW_BYTES);
+    } else {
+        gbp_compose_text_page(job_text, job_len, &plo, cur_row, page_buf);
+    }
     data_idx = 0;
     link_lost = false;
     ps = PS_INIT;
     draw_screen();
+    draw_progress();
 }
 
 void print_frame(int frame)
@@ -204,7 +230,7 @@ void print_frame(int frame)
     switch (ps) {
     case PS_CONFIRM:
         if (key_hit(KEY_A))
-            start_page();
+            start_chunk();
         break;
 
     case PS_INIT: {
@@ -225,7 +251,7 @@ void print_frame(int frame)
             link_lost = (ka != GBP_KEEPALIVE);
             last_status = st; ps = PS_ERROR; draw_screen(); break;
         }
-        if (++data_idx >= GBP_PKTS_PER_PAGE)
+        if (++data_idx >= chunk_pkts)
             ps = PS_ARM;
         draw_progress();
         break;
@@ -241,7 +267,7 @@ void print_frame(int frame)
 
     case PS_PRINT: {
         u8 args[4];
-        gbp_print_args(page_margins(), 0x40, args);
+        gbp_print_args(chunk_margins(), 0x40, args);
         int n = gbp_packet_build(GBP_CMD_PRINT, args, 4, pkt_buf);
         gbp_link_send(pkt_buf, n, GBP_HALF_NORMAL, &ka, &st);
         if (ka != GBP_KEEPALIVE || status_error(st)) {
@@ -286,8 +312,9 @@ void print_frame(int frame)
             }
             draw_progress();
             if (finished) {
-                if (++cur_page < n_pages)
-                    start_page();
+                cur_row += chunk_pkts * 2;
+                if (cur_row < total_rows)
+                    start_chunk();
                 else {
                     ps = PS_DONE;
                     draw_screen();

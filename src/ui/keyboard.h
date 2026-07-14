@@ -12,6 +12,7 @@ enum {
     KA_LAYER_SHAPE,
     KA_ENTER,
     KA_BACKSPACE,
+    KA_SHIFT,       // one-shot lower<->upper toggle (letter layers only)
 };
 
 #define KB_LAYER_COUNT 4

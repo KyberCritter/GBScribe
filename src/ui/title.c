@@ -14,6 +14,15 @@ static bool printer_ok;
 static bool choosing;        // Start pressed: new-doc / new-drawing / load chooser
 static int  choice;
 
+// Konami code -> secret debug menu (snippet prints)
+static const u16 konami[] = {
+    KEY_UP, KEY_UP, KEY_DOWN, KEY_DOWN,
+    KEY_LEFT, KEY_RIGHT, KEY_LEFT, KEY_RIGHT,
+    KEY_B, KEY_A,
+};
+#define KONAMI_LEN 10
+static int konami_idx;
+
 static void draw_printer_status(void)
 {
     if (printer_ok) {
@@ -51,6 +60,7 @@ void title_enter(void)
     obj_hide(&oam_mem[0]);
     choosing = false;
     choice = 0;
+    konami_idx = 0;
 
     ui_fill(6, 5, 18, 5, 3);
     ui_frame(6, 5, 18, 5);
@@ -61,7 +71,7 @@ void title_enter(void)
     ui_text(5, 12, "Write \x0C Draw \x0C Print", PB_UI);   // 20 chars
     ui_text(9, 15, "PRESS START", PB_UI);                  // 11 chars
 
-    ui_text(25, 19, "v0.2", PB_UI);   // latest release tag; bump on release
+    ui_text(25, 19, "v0.3", PB_UI);   // latest release tag; bump on release
 
     char line[24];
     siprintf(line, "Save: %s", storage_name());
@@ -83,7 +93,7 @@ void title_frame(int frame)
             case 1: draw_clear(); app_goto(ST_DRAW);   break;
             case 2: app_goto(ST_SLOTS_LOAD_ANY);       break;
             case 3:
-                print_set_page(testpage_page, ST_TITLE);
+                print_set_page(testpage_page, TESTPAGE_ROWS, ST_TITLE);
                 app_goto(ST_PRINT);
                 break;
             case 4: credits_set_back(ST_TITLE); app_goto(ST_CREDITS); break;
@@ -104,6 +114,22 @@ void title_frame(int frame)
         if (ok != printer_ok) {
             printer_ok = ok;
             draw_printer_status();
+        }
+    }
+
+    // Konami code: exact key per step; the final A is consumed before it can
+    // open the chooser. Any wrong key restarts the sequence.
+    u16 hit = key_hit(KEY_FULL);
+    if (hit) {
+        if (hit == konami[konami_idx]) {
+            if (++konami_idx == KONAMI_LEN) {
+                app_goto(ST_DEBUG);
+                return;
+            }
+            if (hit & (KEY_START | KEY_A))
+                return;        // partial match: don't also open the chooser
+        } else {
+            konami_idx = (hit == konami[0]) ? 1 : 0;
         }
     }
 

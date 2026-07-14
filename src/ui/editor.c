@@ -17,6 +17,7 @@ EWRAM_BSS static Layout lo;
 
 static int top_line;                          // first visible layout line
 static int cur_layer, cur_key;
+static int shift_from = -1;   // layer to return to after one shifted keypress
 
 // caret cell on screen (page-relative), from last render
 static int caret_cx, caret_cy;
@@ -113,17 +114,31 @@ static void caret_horizontal(int dir)
     render_page();
 }
 
+static void switch_layer(int to)
+{
+    cur_key = kb_nearest(cur_layer, cur_key, to);
+    cur_layer = to;
+    kb_render(cur_layer, cur_key);
+}
+
 static void activate_key(const Key *k)
 {
     switch (k->action) {
     case KA_LAYER_LOWER: case KA_LAYER_UPPER:
-    case KA_LAYER_SYM:   case KA_LAYER_SHAPE: {
-        int to = k->action - KA_LAYER_LOWER;
-        cur_key = kb_nearest(cur_layer, cur_key, to);
-        cur_layer = to;
-        kb_render(cur_layer, cur_key);
+    case KA_LAYER_SYM:   case KA_LAYER_SHAPE:
+        shift_from = -1;                 // explicit switch cancels a pending shift
+        switch_layer(k->action - KA_LAYER_LOWER);
         break;
-    }
+    case KA_SHIFT:
+        if (shift_from >= 0) {           // second press cancels
+            int to = shift_from;
+            shift_from = -1;
+            switch_layer(to);
+        } else {
+            shift_from = cur_layer;
+            switch_layer(cur_layer == 1 ? 0 : 1);
+        }
+        break;
     case KA_ENTER:
         type_code(CH_NEWLINE);
         break;
@@ -133,6 +148,11 @@ static void activate_key(const Key *k)
         break;
     default:
         type_code(k->action);
+        if (shift_from >= 0) {           // shift is one-shot: pop back
+            int to = shift_from;
+            shift_from = -1;
+            switch_layer(to);
+        }
     }
 }
 
@@ -179,6 +199,7 @@ void editor_init(void)
     top_line = 0;
     cur_layer = 0;
     cur_key = 0;
+    shift_from = -1;
 }
 
 void editor_enter(void)
@@ -235,10 +256,8 @@ void editor_frame(int frame)
             after_edit();
     }
     if (key_hit(KEY_SELECT)) {
-        int to = (cur_layer + 1) % KB_LAYER_COUNT;
-        cur_key = kb_nearest(cur_layer, cur_key, to);
-        cur_layer = to;
-        kb_render(cur_layer, cur_key);
+        shift_from = -1;
+        switch_layer((cur_layer + 1) % KB_LAYER_COUNT);
     }
     if (key_hit(KEY_R))
         type_code(' ');
