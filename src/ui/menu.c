@@ -61,7 +61,7 @@ void menu_frame(int frame)
             print_set_text(manual_text, manual_len, ST_MENU);
             app_goto(ST_PRINT);
             break;
-        case 8: app_goto(ST_CREDITS); break;
+        case 8: credits_set_back(ST_MENU); app_goto(ST_CREDITS); break;
         case 9: app_goto(ST_TITLE); break;
         }
     }
