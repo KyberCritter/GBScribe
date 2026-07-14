@@ -12,6 +12,9 @@
 #define PB_QR 5                  // palette bank: [1]=black, [2]=white
 
 static int page;                 // 0 = about, 1 = legal acknowledgements
+static AppState back = ST_MENU;  // where B exits to (menu or title)
+
+void credits_set_back(AppState s) { back = s; }
 
 static void draw_about(void)
 {
@@ -89,7 +92,7 @@ void credits_frame(int frame)
     if (page == 0) {
         if (key_hit(KEY_DOWN)) { page = 1; draw_legal(); return; }
         if (key_hit(KEY_B) || key_hit(KEY_START)) {
-            app_goto(ST_MENU);
+            app_goto(back);
             return;
         }
         if (key_hit(KEY_A)) {
@@ -99,6 +102,6 @@ void credits_frame(int frame)
     } else {
         if (key_hit(KEY_UP) || key_hit(KEY_B)) { page = 0; draw_about(); return; }
         if (key_hit(KEY_START))
-            app_goto(ST_MENU);
+            app_goto(back);
     }
 }

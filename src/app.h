@@ -30,6 +30,8 @@ void settings_enter(void); void settings_frame(int frame);
 void print_enter(void);    void print_frame(int frame);
 void drawmenu_enter(void); void drawmenu_frame(int frame);
 void credits_enter(void);  void credits_frame(int frame);
+// Where B exits the credits scene to (persists across the QR print detour).
+void credits_set_back(AppState s);
 
 // Print a raw 5,760-byte page (canvas, QR) instead of the document; `back` is
 // where B returns from the print scene. One-shot: set right before ST_PRINT.

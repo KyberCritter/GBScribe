@@ -8,6 +8,7 @@
 #include "core/charset.h"
 #include "printer/gbp_link.h"
 #include "storage/storage.h"
+#include "gfx/testpage.h"
 
 static bool printer_ok;
 static bool choosing;        // Start pressed: new-doc / new-drawing / load chooser
@@ -24,14 +25,23 @@ static void draw_printer_status(void)
     }
 }
 
+#define N_CHOICES 5
+
 static void draw_chooser(void)
 {
-    static const char *opts[] = { "New text document", "New drawing", "Load a file" };
-    ui_fill(5, 10, 21, 8, 3);
-    ui_frame(5, 10, 21, 8);
-    for (int i = 0; i < 3; i++) {
-        ui_text(8, 12 + i * 2, opts[i], PB_UI);
-        map_put(text_map(), 7, 12 + i * 2, i == choice ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
+    static const char *opts[] = {
+        "New text document", "New drawing", "Load a file",
+        "Print test page", "Credits",
+    };
+    ui_fill(5, 9, 21, 9, 3);
+    ui_frame(5, 9, 21, 9);
+    // blank the text layer inside (BG0 sits above the chrome fill)
+    for (int y = 10; y <= 16; y++)
+        for (int x = 6; x <= 24; x++)
+            map_put(text_map(), x, y, CH_BLANK, PB_UI);
+    for (int i = 0; i < N_CHOICES; i++) {
+        ui_text(8, 11 + i, opts[i], PB_UI);
+        map_put(text_map(), 7, 11 + i, i == choice ? CH_ARR_RIGHT : CH_BLANK, PB_UI);
     }
 }
 
@@ -51,7 +61,7 @@ void title_enter(void)
     ui_text(5, 12, "Write \x0C Draw \x0C Print", PB_UI);   // 20 chars
     ui_text(9, 15, "PRESS START", PB_UI);                  // 11 chars
 
-    ui_text(25, 19, "v1.4", PB_UI);
+    ui_text(25, 19, "v0.2", PB_UI);   // latest release tag; bump on release
 
     char line[24];
     siprintf(line, "Save: %s", storage_name());
@@ -64,14 +74,19 @@ void title_enter(void)
 void title_frame(int frame)
 {
     if (choosing) {
-        if (key_hit(KEY_UP))   { choice = (choice + 2) % 3; draw_chooser(); }
-        if (key_hit(KEY_DOWN)) { choice = (choice + 1) % 3; draw_chooser(); }
+        if (key_hit(KEY_UP))   { choice = (choice + N_CHOICES - 1) % N_CHOICES; draw_chooser(); }
+        if (key_hit(KEY_DOWN)) { choice = (choice + 1) % N_CHOICES; draw_chooser(); }
         if (key_hit(KEY_B)) { title_enter(); return; }
         if (key_hit(KEY_A) || key_hit(KEY_START)) {
             switch (choice) {
             case 0: editor_new(); app_goto(ST_EDITOR); break;
             case 1: draw_clear(); app_goto(ST_DRAW);   break;
             case 2: app_goto(ST_SLOTS_LOAD_ANY);       break;
+            case 3:
+                print_set_page(testpage_page, ST_TITLE);
+                app_goto(ST_PRINT);
+                break;
+            case 4: credits_set_back(ST_TITLE); app_goto(ST_CREDITS); break;
             }
         }
         return;
