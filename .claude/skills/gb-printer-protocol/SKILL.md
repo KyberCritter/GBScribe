@@ -63,19 +63,26 @@ Commands used: `INIT (0x01)`, `DATA (0x04)`, `PRINT (0x02)`, `INQUIRY (0x0F)`.
 Status bits that matter: bit 1 = PRINTING, plus CHECKSUM_ERR / PACKET_ERR /
 PAPER_JAM / LOW_BATTERY / OTHER_ERR (see `gbp_packet.h`).
 
-## 3. The page
+## 3. The chunk (buffer-load)
 
-A printed page is 160×144 px = 20×18 tiles of **GB 2bpp** (16 bytes/tile: 2
-bytes per pixel row, plane0|plane1<<1 = shade 0..3, 0 = white paper) = 5,760
-bytes. Text pages are composed from the layout engine + `font2bpp`
-(`gbp_compose_text_page`); the drawing canvas, QR page, and test page already
-ARE this format and print as-is (`print_set_page`).
+Print data is 160 px wide: 20 tiles/row of **GB 2bpp** (16 bytes/tile: 2 bytes
+per pixel row, plane0|plane1<<1 = shade 0..3, 0 = white paper), 320 bytes per
+tile row. The printer's RAM buffer holds at most 18 rows (one GB screen,
+5,760 bytes), so a document prints as a sequence of **chunks** of up to 18
+rows each. Text output is **contiguous, not page-based**: the last chunk is
+trimmed to the remaining layout lines (rounded up to the 2-row band the head
+advances in), so no blank paper is fed after the text. Text rows are composed
+from the layout engine + `font2bpp` (`gbp_compose_text_page`); the drawing
+canvas, QR page, and test page already ARE this format — raw images of any
+tile-row height printed via `print_set_page` (the test page is a multi-chunk
+strip; canvas and QR are single 18-row buffers).
 
-The page is sent as **9 DATA packets × 640 bytes** (2 tile rows each), then one
-**empty DATA packet** arms the buffer, then **PRINT** with 4 args:
-`{sheets=1, margins, palette=0xE4, exposure=0x40}`. Margins are picked per page
-so multi-page documents feed continuously: single `0x13`, first `0x10`,
-middle `0x00`, last `0x03`.
+Each chunk is sent as **up to 9 DATA packets × 640 bytes** (2 tile rows each),
+then one **empty DATA packet** arms the buffer, then **PRINT** with 4 args:
+`{sheets=1, margins, palette=0xE4, exposure=0x40}`. Margins make the chunks
+join seamlessly into one document: feed-before (`0x10`) on the first chunk,
+feed-after (`0x03`) on the last, `0x00` between (`0x13` when a single chunk
+is both).
 
 ## 4. The job state machine (`src/ui/print.c`)
 
@@ -83,10 +90,13 @@ One packet per 60 Hz frame, so the UI stays live and B can always cancel
 (between packets the printer just times out and resets):
 
 ```
-CONFIRM → INIT (then ~200ms settle) → DATA ×9 → ARM (empty DATA) → PRINT → WAIT
+CONFIRM → INIT (then ~200ms settle) → DATA ×≤9 → ARM (empty DATA) → PRINT → WAIT
                                                                         ↓
-                                              next page → INIT …   or DONE / ERROR
+                                              next chunk → INIT …  or DONE / ERROR
 ```
+
+Progress UI is line-based: `Line X/Y` plus an 18-cell bar spanning the whole
+job by rows sent.
 
 `PS_WAIT` polls INQUIRY every 3 frames (~50 ms — doubles as keepalive so the
 printer doesn't time out mid-motor-spin) and decides completion:
@@ -101,9 +111,11 @@ printer doesn't time out mid-motor-spin) and decides completion:
   checksum / raw hex).
 
 Print sources: editor document (default), any text buffer via
-`print_set_text(text, len, back)` (the built-in manual), or a raw 5,760-byte
-page via `print_set_page(page, back)` (canvas, QR page, test page). Both are
-one-shot latches set right before `app_goto(ST_PRINT)`; `back` is where B exits.
+`print_set_text(text, len, back)` (the built-in manual), or a raw 2bpp image
+via `print_set_page(page, tile_rows, back)` — 320 bytes per tile row, any
+height (canvas and QR are 18 rows; the test page is taller and streams in
+chunks). Both are one-shot latches set right before `app_goto(ST_PRINT)`;
+`back` is where B exits.
 
 ## 5. How it was validated without hardware
 
