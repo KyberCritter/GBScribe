@@ -9,7 +9,7 @@ TESTS := $(BIN)/test_layout $(BIN)/test_printer
 run: $(TESTS)
 	@set -e; for t in $(TESTS); do echo "== $$t"; ./$$t; done
 
-$(BIN)/test_layout: test_layout.c ../../src/core/layout.c ../../src/core/document.c
+$(BIN)/test_layout: test_layout.c ../../src/core/layout.c ../../src/core/document.c ../../src/core/manual.c
 	@mkdir -p $(BIN)
 	$(CC) $(CFLAGS) $^ -o $@
 

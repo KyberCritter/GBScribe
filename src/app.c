@@ -41,6 +41,7 @@ void app_goto(AppState s)
         case ST_SETTINGS:       settings_enter();      break;
         case ST_PRINT:          print_enter();         break;
         case ST_CREDITS:        credits_enter();       break;
+        case ST_INSTRUCTIONS:   instructions_enter();  break;
         case ST_DEBUG:          debug_enter();         break;
         default: break;
         }
@@ -71,6 +72,7 @@ void app_frame(int frame)
     case ST_DRAW:           draw_frame(frame);     break;
     case ST_DRAWMENU:       drawmenu_frame(frame); break;
     case ST_CREDITS:        credits_frame(frame);  break;
+    case ST_INSTRUCTIONS:   instructions_frame(frame); break;
     case ST_DEBUG:          debug_frame(frame);    break;
     }
 }

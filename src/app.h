@@ -16,6 +16,7 @@ typedef enum {
     ST_DRAW,
     ST_DRAWMENU,
     ST_CREDITS,
+    ST_INSTRUCTIONS,     // on-screen manual viewer (also prints)
     ST_DEBUG,            // secret snippet-print menu (Konami code on title)
 } AppState;
 
@@ -31,9 +32,12 @@ void settings_enter(void); void settings_frame(int frame);
 void print_enter(void);    void print_frame(int frame);
 void drawmenu_enter(void); void drawmenu_frame(int frame);
 void credits_enter(void);  void credits_frame(int frame);
+void instructions_enter(void); void instructions_frame(int frame);
 void debug_enter(void);    void debug_frame(int frame);
 // Where B exits the credits scene to (persists across the QR print detour).
 void credits_set_back(AppState s);
+// Same contract for the instructions viewer (also resets it to page 1).
+void instructions_set_back(AppState s);
 
 // Print a raw 2bpp image (canvas, QR, test page) instead of the document:
 // `tile_rows` tile rows of 320 bytes each (160px wide). `back` is where B

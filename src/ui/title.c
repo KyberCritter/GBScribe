@@ -34,13 +34,13 @@ static void draw_printer_status(void)
     }
 }
 
-#define N_CHOICES 5
+#define N_CHOICES 6
 
 static void draw_chooser(void)
 {
     static const char *opts[] = {
         "New text document", "New drawing", "Load a file",
-        "Print test page", "Credits",
+        "Print test page", "Instructions", "Credits",
     };
     ui_fill(5, 9, 21, 9, 3);
     ui_frame(5, 9, 21, 9);
@@ -96,7 +96,8 @@ void title_frame(int frame)
                 print_set_page(testpage_page, TESTPAGE_ROWS, ST_TITLE);
                 app_goto(ST_PRINT);
                 break;
-            case 4: credits_set_back(ST_TITLE); app_goto(ST_CREDITS); break;
+            case 4: instructions_set_back(ST_TITLE); app_goto(ST_INSTRUCTIONS); break;
+            case 5: credits_set_back(ST_TITLE); app_goto(ST_CREDITS); break;
             }
         }
         return;

@@ -4,7 +4,6 @@
 #include "ui/screen.h"
 #include "ui/editor.h"
 #include "core/charset.h"
-#include "core/manual.h"
 
 static const char *items[] = {
     "Resume",
@@ -14,7 +13,7 @@ static const char *items[] = {
     "New document",
     "Drawing mode",
     "Settings",
-    "Print manual",
+    "Instructions",
     "About",
     "Main menu",
 };
@@ -57,10 +56,7 @@ void menu_frame(int frame)
         case 4: editor_new(); app_goto(ST_EDITOR); break;
         case 5: app_goto(ST_DRAW); break;
         case 6: app_goto(ST_SETTINGS); break;
-        case 7:
-            print_set_text(manual_text, manual_len, ST_MENU);
-            app_goto(ST_PRINT);
-            break;
+        case 7: instructions_set_back(ST_MENU); app_goto(ST_INSTRUCTIONS); break;
         case 8: credits_set_back(ST_MENU); app_goto(ST_CREDITS); break;
         case 9: app_goto(ST_TITLE); break;
         }

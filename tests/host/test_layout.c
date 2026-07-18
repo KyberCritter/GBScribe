@@ -3,6 +3,7 @@
 #include <string.h>
 #include "core/document.h"
 #include "core/layout.h"
+#include "core/manual.h"
 
 static int fails, checks;
 #define CHECK(cond, ...) do { \
@@ -122,6 +123,24 @@ static void test_full_page_doc(void)
     CHECK(lo.count == 50, "mid-word same density (got %d)", lo.count);
 }
 
+static void test_manual_fits(void)
+{
+    // The manual is authored at <= 20 chars per line so the on-screen viewer
+    // and the printout show it exactly as written: reflow at the page width
+    // must produce no soft wraps (every line after the first starts right
+    // after a newline) and no overlong lines.
+    layout_reflow(&lo, manual_text, manual_len, 20, WRAP_POST_WORD);
+    for (int i = 0; i < lo.count; i++) {
+        int len = layout_line_len(&lo, manual_text, manual_len, i);
+        CHECK(len <= 20, "manual line %d is %d chars: '%.*s'",
+              i, len, len, manual_text + lo.start[i]);
+        if (i > 0)
+            CHECK(manual_text[lo.start[i] - 1] == '\n',
+                  "manual line %d soft-wrapped: '%.*s'",
+                  i, len, manual_text + lo.start[i]);
+    }
+}
+
 int main(void)
 {
     test_wrap_basic();
@@ -131,6 +150,7 @@ int main(void)
     test_caret_line();
     test_document();
     test_full_page_doc();
+    test_manual_fits();
     printf("%d checks, %d failures\n", checks, fails);
     return fails ? 1 : 0;
 }
