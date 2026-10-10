@@ -24,3 +24,6 @@ Thumbs.db
 __pycache__/
 /temp
 /.vscode
+
+# Reference files
+.claude/resources/*
