@@ -73,10 +73,10 @@ Host-side tests:
 make -C tests/host run
 ```
 
-The printer byte stream is verified without hardware by decoding it with mofosyne's
-independent `GameBoyPrinterDecoderC` and pixel-comparing the result
-(`tests/host/test_printer.c`). Generated assets (font, QR, music) are committed.
-Regenerate assets with the scripts in `tools/` (Python 3; `segno` needed for the QR).
+The printer packet framing and checksums are verified on the host against
+hand-computed byte references (`tests/host/test_printer.c`). Generated assets
+(font, QR, music) are committed. Regenerate assets with the scripts in `tools/`
+(Python 3; `segno` needed for the QR).
 
 ## Layout
 
@@ -89,7 +89,7 @@ src/        application source
   storage/  save slots (runtime-detected FLASH1M or SRAM backend)
   gfx/      generated sources (font, QR, logo) — regenerate via tools/, don't hand-edit
 assets/     generated music/SFX sources + logo.png
-tests/host/ host-side unit tests and the printer decode harness
+tests/host/ host-side unit tests (layout engine + printer packet bytes)
 tools/      build scripts: font, QR, music generation; mGBA capture; deploy
 LICENSES/   dependency license texts
 .claude/    Claude Code config; resources/ holds vendored technical documentation

@@ -14,13 +14,9 @@ $(BIN)/test_layout: test_layout.c ../../src/core/layout.c ../../src/core/documen
 	$(CC) $(CFLAGS) $^ -o $@
 
 $(BIN)/test_printer: test_printer.c ../../src/printer/gbp_packet.c ../../src/printer/gbp_print.c \
-                     ../../src/core/layout.c ../../src/core/document.c ../../src/gfx/font2bpp.c \
-                     decoder/gpbdecoder
+                     ../../src/core/layout.c ../../src/core/document.c ../../src/gfx/font2bpp.c
 	@mkdir -p $(BIN)
-	$(CC) $(CFLAGS) $(filter %.c,$^) -o $@
-
-decoder/gpbdecoder:
-	$(MAKE) -C decoder
+	$(CC) $(CFLAGS) $^ -o $@
 
 clean:
 	rm -rf $(BIN)

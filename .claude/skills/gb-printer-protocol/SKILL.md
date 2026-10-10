@@ -121,10 +121,9 @@ chunks). Both are one-shot latches set right before `app_goto(ST_PRINT)`;
 
 The protocol layer was proven before the driver existed: the host harness
 (`tests/host/test_printer.c`, see the `gba-host-tests` skill) checks exact
-packet bytes against hand-computed checksums, then round-trips a composed page
-through mofosyne's independent decoder and compares BMP pixels. So when the
-first hardware test failed, the byte stream was already trusted — debugging
-focused (correctly) on timing and GPIO, which is where all three real bugs were.
+packet bytes against hand-computed checksums. So when the first hardware test
+failed, the byte stream was already trusted — debugging focused (correctly) on
+timing and GPIO, which is where all three real bugs were.
 
 Field debugging aid: the title chooser's "Print test page" prints shade bands +
 alignment patterns (`src/gfx/testpage.c`) to verify the full chain on paper.
