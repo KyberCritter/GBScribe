@@ -1,0 +1,3 @@
+[submodule "lib/AdvancePrint"]
+	path = lib/AdvancePrint
+	url = https://github.com/KyberCritter/AdvancePrint.git

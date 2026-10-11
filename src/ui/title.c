@@ -6,7 +6,7 @@
 #include "ui/editor.h"
 #include "ui/draw.h"
 #include "core/charset.h"
-#include "printer/gbp_link.h"
+#include <advanceprint/advanceprint_link.h>
 #include "storage/storage.h"
 #include "gfx/testpage.h"
 
@@ -111,7 +111,7 @@ void title_frame(int frame)
 
     // probe for the printer once a second (bare INQUIRY, ~10ms, no paper)
     if ((frame % 60) == 30) {
-        bool ok = gbp_link_detect(NULL);
+        bool ok = ap_link_detect(NULL);
         if (ok != printer_ok) {
             printer_ok = ok;
             draw_printer_status();

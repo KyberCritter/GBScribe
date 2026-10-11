@@ -60,6 +60,16 @@ GBA ── link port (GPIO mode) ── GBC/GB-Pocket link cable ── Game Boy
 
 ## Building
 
+The Game Boy Printer driver is a separate library, [AdvancePrint](https://github.com/KyberCritter/AdvancePrint),
+pulled in as a git submodule at `lib/AdvancePrint/`. Clone with submodules (or
+initialize them after a plain clone):
+
+```sh
+git clone --recurse-submodules <repo>
+# existing clone:
+git submodule update --init --recursive
+```
+
 Requires Docker (uses the official `devkitpro/devkitarm` image):
 
 ```sh
@@ -74,22 +84,23 @@ make -C tests/host run
 ```
 
 The printer packet framing and checksums are verified on the host against
-hand-computed byte references (`tests/host/test_printer.c`). Generated assets
-(font, QR, music) are committed. Regenerate assets with the scripts in `tools/`
-(Python 3; `segno` needed for the QR).
+hand-computed byte references, now exercising the AdvancePrint sources directly
+(`tests/host/test_printer.c`). Generated assets (font, QR, music) are committed.
+Regenerate assets with the scripts in `tools/` (Python 3; `segno` needed for the
+QR).
 
 ## Layout
 
 ```txt
 src/        application source
-  printer/  GB Printer driver — gbp_packet.c/gbp_print.c are portable C and MUST
-            stay free of GBA headers, so they compile for the host harness too
   core/     document model, layout/wrap engine, character set
-  ui/       title, menus, editor, drawing, settings, credits/about
+  ui/       title, menus, editor, drawing, settings, credits/about, print scene
   storage/  save slots (runtime-detected FLASH1M or SRAM backend)
   gfx/      generated sources (font, QR, logo) — regenerate via tools/, don't hand-edit
+lib/AdvancePrint/  GB Printer driver (git submodule): GPIO link, packets, page
+            composition, and the frame-driven print-job engine the print scene uses
 assets/     generated music/SFX sources + logo.png
-tests/host/ host-side unit tests (layout engine + printer packet bytes)
+tests/host/ host-side unit tests (layout engine + printer packet/page bytes)
 tools/      build scripts: font, QR, music generation; mGBA capture; deploy
 LICENSES/   dependency license texts
 .claude/    Claude Code config; resources/ holds vendored technical documentation

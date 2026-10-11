@@ -23,9 +23,12 @@ cd /d/Coding/GBScribe && ./build.sh          # -> GBScribe.gba in repo root
   works from a git worktree — that's how release ROMs are built at a tag without
   touching the main working tree.
 - Every successful build is also copied to `dist/GBScribe.gba` (gitignored) by build.sh.
-- The Makefile globs `src/**/*.c` by directory list (`SRCDIRS`); new generated .c files
-  in `src/gfx/` are picked up automatically, but a NEW directory must be added to
-  `SRCDIRS` in the Makefile.
+- The printer driver is the AdvancePrint git submodule at `lib/AdvancePrint/`;
+  make sure it is checked out (`git submodule update --init --recursive`) or the
+  ROM link step fails on missing `lib/AdvancePrint/src/*.c`.
+- The Makefile globs `src/**/*.c` by directory list (`SRCDIRS`) plus
+  `lib/AdvancePrint/src`; new generated .c files in `src/gfx/` are picked up
+  automatically, but a NEW directory must be added to `SRCDIRS` in the Makefile.
 - Bash tool cwd can reset between calls — always `cd /d/Coding/GBScribe` first.
 
 ## Deploy to flash cart (user rule — do after EVERY build)
