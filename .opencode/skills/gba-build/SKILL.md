@@ -29,7 +29,7 @@ cd /d/Coding/GBScribe && ./build.sh          # -> GBScribe.gba in repo root
 - The Makefile globs `src/**/*.c` by directory list (`SRCDIRS`) plus
   `lib/AdvancePrint/src`; new generated .c files in `src/gfx/` are picked up
   automatically, but a NEW directory must be added to `SRCDIRS` in the Makefile.
-- Bash tool cwd can reset between calls — always `cd /d/Coding/GBScribe` first.
+- Shell tool cwd can reset between calls — always `cd /d/Coding/GBScribe` first.
 
 ## Deploy to flash cart (user rule — do after EVERY build)
 

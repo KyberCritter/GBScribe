@@ -36,7 +36,7 @@ Every visual change must be checked by exporting an image and LOOKING at it:
   `qr_preview.png`, `testpage_preview.png` (2×).
 - View with the Read tool. If a preview looks wrong, verify by decoding pixel
   values programmatically before concluding — small thumbnails mislead.
-- Show the user significant results with SendUserFile.
+- Show the user significant results with the browser preview tool.
 
 ## Print-page format (shared by QR page, test page, drawing canvas)
 
