@@ -103,7 +103,7 @@ assets/     generated music/SFX sources + logo.png
 tests/host/ host-side unit tests (layout engine + printer packet/page bytes)
 tools/      build scripts: font, QR, music generation; mGBA capture; deploy
 LICENSES/   dependency license texts
-.claude/    Claude Code config; resources/ holds vendored technical documentation
+.opencode/  project skills: build, host tests, mGBA capture, printer protocol
 ```
 
 ## Legal
