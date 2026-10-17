@@ -108,9 +108,11 @@ LICENSES/   dependency license texts
 
 ## Legal
 
-GBScribe is free software, licensed under the MIT License — see
-[LICENSE.md](LICENSE.md).
+Copyright © 2026 Scott Ratchford.
+GBScribe's original code and documentation are available under the MIT License.
+See [LICENSE](LICENSE) for the full text.
 
-Not affiliated with, endorsed by, or sponsored by Nintendo. Game Boy, Game Boy Color, Game
-Boy Advance and Game Boy Printer are trademarks of Nintendo. "QR Code" is a registered
-trademark of DENSO WAVE Incorporated. Dependency licenses are vendored in `LICENSES/`.
+Not affiliated with, endorsed by, or sponsored by Nintendo.
+Game Boy, Game Boy Color, Game Boy Advance and Game Boy Printer are trademarks of Nintendo.
+"QR Code" is a registered trademark of DENSO WAVE Incorporated.
+Dependency licenses are vendored in `LICENSES/`.
