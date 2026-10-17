@@ -6,7 +6,7 @@
 #include "core/charset.h"
 #include "gfx/font.h"
 #include "gfx/qr.h"
-#include "printer/gbp_print.h"
+#include <advanceprint/advanceprint_page.h>
 
 // QR glyph tiles live in CBB0 after the font tiles
 #define QR_TILE_BASE 160
@@ -97,7 +97,7 @@ void credits_frame(int frame)
             return;
         }
         if (key_hit(KEY_A)) {
-            print_set_page(qr_page, GBP_ROWS_PER_PAGE, ST_CREDITS);
+            print_set_page(qr_page, AP_ROWS_PER_PAGE, ST_CREDITS);
             app_goto(ST_PRINT);
         }
     } else {

@@ -4,8 +4,13 @@
 #include "ui/screen.h"
 #include "ui/draw.h"
 #include "storage/save.h"
-#include "printer/gbp_link.h"
+#include <advanceprint/advanceprint_link.h>
+#include <advanceprint/advanceprint_page.h>
 #include "sound.h"
+
+// GBScribe's GB 2bpp print font (tools/mkfont.py); installed into AdvancePrint
+// so printed text always tracks the app's own charset.
+extern const unsigned char font2bpp[2048];
 
 static AppState state;
 
@@ -51,7 +56,8 @@ void app_goto(AppState s)
 void app_init(void)
 {
     save_init();
-    gbp_link_init();
+    ap_link_init();
+    ap_page_set_font(font2bpp, 128);
     editor_init();
     app_goto(ST_TITLE);
 }
