@@ -16,7 +16,7 @@ BUILD    := build
 
 AUDIO    := assets/theme.mod assets/click.wav assets/ding.wav
 
-SRCDIRS  := src src/ui src/core src/printer src/storage src/gfx
+SRCDIRS  := src src/ui src/core src/storage src/gfx lib/AdvancePrint/src
 CFILES   := $(foreach d,$(SRCDIRS),$(wildcard $(d)/*.c))
 OBJS     := $(patsubst %.c,$(BUILD)/%.o,$(CFILES)) $(BUILD)/soundbank.o
 
@@ -24,7 +24,7 @@ ARCH     := -mthumb -mthumb-interwork
 CFLAGS   := $(ARCH) -mcpu=arm7tdmi -mtune=arm7tdmi -O2 -Wall -Wextra \
             -ffunction-sections -fdata-sections -MMD -MP \
             -I$(DEVKITPRO)/libtonc/include -I$(DEVKITPRO)/libgba/include \
-            -Isrc -I$(BUILD)
+            -Isrc -I$(BUILD) -Ilib/AdvancePrint/include
 LDFLAGS  := $(ARCH) -specs=gba.specs -Wl,-Map,$(BUILD)/$(TARGET).map -Wl,--gc-sections
 LIBS     := -L$(DEVKITPRO)/libtonc/lib -ltonc \
             -L$(DEVKITPRO)/libgba/lib -lmm
