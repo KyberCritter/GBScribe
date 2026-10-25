@@ -1,6 +1,6 @@
 # Host-side unit tests (gcc). Run: make -C tests/host run   (in WSL or any POSIX box)
 CC      := gcc
-CFLAGS  := -O1 -g -Wall -Wextra -I../../src
+CFLAGS  := -O1 -g -Wall -Wextra -I../../src -I../../lib/AdvancePrint/include
 BIN     := bin
 
 TESTS := $(BIN)/test_layout $(BIN)/test_printer
@@ -13,8 +13,14 @@ $(BIN)/test_layout: test_layout.c ../../src/core/layout.c ../../src/core/documen
 	@mkdir -p $(BIN)
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(BIN)/test_printer: test_printer.c ../../src/printer/gbp_packet.c ../../src/printer/gbp_print.c \
-                     ../../src/core/layout.c ../../src/core/document.c ../../src/gfx/font2bpp.c
+# Printer path now compiles the AdvancePrint sources directly (the same ones the
+# ROM links) plus GBScribe's generated print font.
+$(BIN)/test_printer: test_printer.c \
+                     ../../lib/AdvancePrint/src/advanceprint_packet.c \
+                     ../../lib/AdvancePrint/src/advanceprint_text.c \
+                     ../../lib/AdvancePrint/src/advanceprint_page.c \
+                     ../../lib/AdvancePrint/src/advanceprint_font.c \
+                     ../../src/gfx/font2bpp.c
 	@mkdir -p $(BIN)
 	$(CC) $(CFLAGS) $^ -o $@
 

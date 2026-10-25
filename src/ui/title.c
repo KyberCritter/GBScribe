@@ -6,7 +6,7 @@
 #include "ui/editor.h"
 #include "ui/draw.h"
 #include "core/charset.h"
-#include "printer/gbp_link.h"
+#include <advanceprint/advanceprint_link.h>
 #include "storage/storage.h"
 #include "gfx/testpage.h"
 
@@ -71,7 +71,7 @@ void title_enter(void)
     ui_text(5, 12, "Write \x0C Draw \x0C Print", PB_UI);   // 20 chars
     ui_text(9, 15, "PRESS START", PB_UI);                  // 11 chars
 
-    ui_text(25, 19, "v0.3", PB_UI);   // latest release tag; bump on release
+    ui_text(25, 19, "v0.4", PB_UI);   // latest release tag; bump on release
 
     char line[24];
     siprintf(line, "Save: %s", storage_name());
@@ -111,7 +111,7 @@ void title_frame(int frame)
 
     // probe for the printer once a second (bare INQUIRY, ~10ms, no paper)
     if ((frame % 60) == 30) {
-        bool ok = gbp_link_detect(NULL);
+        bool ok = ap_link_detect(NULL);
         if (ok != printer_ok) {
             printer_ok = ok;
             draw_printer_status();

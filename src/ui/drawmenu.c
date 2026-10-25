@@ -7,7 +7,7 @@
 #include "core/charset.h"
 #include "storage/storage.h"
 #include "storage/save.h"
-#include "printer/gbp_print.h"
+#include <advanceprint/advanceprint_page.h>
 
 static int sel;
 #define N_ITEMS 7
@@ -52,7 +52,7 @@ void drawmenu_frame(int frame)
     if (key_hit(KEY_A)) {
         switch (sel) {
         case 0: app_goto(ST_DRAW); break;
-        case 1: print_set_page(draw_canvas(), GBP_ROWS_PER_PAGE, ST_DRAWMENU); app_goto(ST_PRINT); break;
+        case 1: print_set_page(draw_canvas(), AP_ROWS_PER_PAGE, ST_DRAWMENU); app_goto(ST_PRINT); break;
         case 2: app_goto(ST_SLOTS_SAVE_ART); break;
         case 3: app_goto(ST_SLOTS_LOAD_ART); break;
         case 4:
