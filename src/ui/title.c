@@ -71,7 +71,7 @@ void title_enter(void)
     ui_text(5, 12, "Write \x0C Draw \x0C Print", PB_UI);   // 20 chars
     ui_text(9, 15, "PRESS START", PB_UI);                  // 11 chars
 
-    ui_text(25, 19, "v0.3", PB_UI);   // latest release tag; bump on release
+    ui_text(25, 19, "v0.4", PB_UI);   // latest release tag; bump on release
 
     char line[24];
     siprintf(line, "Save: %s", storage_name());
