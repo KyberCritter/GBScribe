@@ -25,24 +25,24 @@ GBA ── link port (GPIO mode) ── GBC/GB-Pocket link cable ── Game Boy
 ## Features
 
 - WYSIWYG text editor with an on-screen QWERTY keyboard, rendered at true print width (the on-screen page is exactly the 160px that prints)
-- Full ASCII plus arrows, shapes, and specialty characters
+- English letters, numbers, arrows, shapes, and specialty characters
 - Word wrap (mid-word or post-word), explicit line breaks, documents up to 16,000 characters (~44 printed pages)
 - Pixel-art drawing mode: 160×144 canvas (one printed page), pencil/eraser/line/rect, stamp library, 4 shades with selectable display palettes
 - 8 save slots, each holding a document or a drawing
-  - The save backend (FLASH1M or plain SRAM/FRAM, as on the EZ-Flash Omega) is detected at runtime
+  - The save backend is detected at runtime
 - Prints documents, drawings, and the author's contact card
 - Live printer detection on the title screen
 
 ## Controls
 
-### Editor
+### Text Editor
 
 | Action | Key |
 | --- | --- |
-| Keyboard cursor | D-Pad |
-| Select character | A |
+| Select key | D-Pad |
+| Input character | A |
 | Backspace | B |
-| ? | L + D-pad |
+| Move cursor | L + D-pad |
 | Space | R |
 | Cycle keyboard | Select |
 | Open menu | Start |
